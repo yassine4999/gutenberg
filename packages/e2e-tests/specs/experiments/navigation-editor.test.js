@@ -160,10 +160,6 @@ async function getSerializedBlocks() {
 describe( 'Navigation editor', () => {
 	useExperimentalFeatures( [ '#gutenberg-navigation' ] );
 
-	afterEach( async () => {
-		await setUpResponseMocking( [] );
-	} );
-
 	it( 'allows creation of a menu when there are no current menu items', async () => {
 		const menuPostResponse = {
 			id: 4,
@@ -176,6 +172,7 @@ describe( 'Navigation editor', () => {
 
 		// Initially return nothing from the menu and menuItem endpoints
 		await setUpResponseMocking( [
+			...getPagesMocks( { GET: [] } ),
 			...getMenuMocks( { GET: [] } ),
 			...getMenuItemMocks( { GET: [] } ),
 		] );
@@ -234,6 +231,7 @@ describe( 'Navigation editor', () => {
 		};
 
 		await setUpResponseMocking( [
+			...getPagesMocks( { GET: [] } ),
 			...getMenuMocks( {
 				GET: assignMockMenuIds( menusFixture ),
 				POST: menuPostResponse,
@@ -264,6 +262,7 @@ describe( 'Navigation editor', () => {
 		await menuNameInputLabel.click();
 
 		await setUpResponseMocking( [
+			...getPagesMocks( { GET: [] } ),
 			...getMenuMocks( {
 				GET: assignMockMenuIds( [
 					...menusFixture,
@@ -288,8 +287,9 @@ describe( 'Navigation editor', () => {
 
 	it( 'displays the first menu from the REST response when at least one menu exists', async () => {
 		await setUpResponseMocking( [
-			...getMenuMocks( { GET: assignMockMenuIds( menusFixture ) } ),
+			...getPagesMocks( { GET: [] } ),
 			...getMenuItemMocks( { GET: menuItemsFixture } ),
+			...getMenuMocks( { GET: assignMockMenuIds( menusFixture ) } ),
 		] );
 		await visitNavigationEditor();
 
@@ -306,8 +306,9 @@ describe( 'Navigation editor', () => {
 
 	it( 'shows a submenu when a link is selected and hides it when clicking the editor to deselect it', async () => {
 		await setUpResponseMocking( [
-			...getMenuMocks( { GET: assignMockMenuIds( menusFixture ) } ),
+			...getPagesMocks( { GET: [] } ),
 			...getMenuItemMocks( { GET: menuItemsFixture } ),
+			...getMenuMocks( { GET: assignMockMenuIds( menusFixture ) } ),
 		] );
 		await visitNavigationEditor();
 
@@ -342,6 +343,7 @@ describe( 'Navigation editor', () => {
 
 	it( 'displays suggestions when adding a link', async () => {
 		await setUpResponseMocking( [
+			...getPagesMocks( { GET: [] } ),
 			...getMenuMocks( { GET: assignMockMenuIds( menusFixture ) } ),
 			...getSearchMocks( { GET: searchFixture } ),
 		] );
@@ -409,6 +411,7 @@ describe( 'Navigation editor', () => {
 			};
 
 			await setUpResponseMocking( [
+				...getPagesMocks( { GET: [] } ),
 				...getMenuMocks( {
 					GET: [ menuPostResponse ],
 					POST: menuPostResponse,
@@ -420,10 +423,6 @@ describe( 'Navigation editor', () => {
 
 			// Wait for the navigation setting sidebar.
 			await page.waitForSelector( '.edit-navigation-sidebar' );
-		} );
-
-		afterEach( async () => {
-			await setUpResponseMocking( [] );
 		} );
 
 		it( 'is displayed in inspector additions', async () => {
@@ -443,6 +442,7 @@ describe( 'Navigation editor', () => {
 			};
 
 			await setUpResponseMocking( [
+				...getPagesMocks( { GET: [] } ),
 				...getMenuMocks( {
 					GET: [ menuPostResponse ],
 					POST: menuPostResponse,
@@ -481,6 +481,7 @@ describe( 'Navigation editor', () => {
 			};
 
 			await setUpResponseMocking( [
+				...getPagesMocks( { GET: [] } ),
 				...getMenuMocks( {
 					GET: [ menuPostResponse ],
 					POST: menuPostResponse,
@@ -522,6 +523,7 @@ describe( 'Navigation editor', () => {
 			};
 
 			await setUpResponseMocking( [
+				...getPagesMocks( { GET: [] } ),
 				...getMenuMocks( {
 					GET: [ menuPostResponse ],
 					POST: menuPostResponse,
@@ -530,10 +532,6 @@ describe( 'Navigation editor', () => {
 			] );
 
 			await visitNavigationEditor();
-		} );
-
-		afterEach( async () => {
-			await setUpResponseMocking( [] );
 		} );
 
 		async function assertIsDirty( isDirty ) {

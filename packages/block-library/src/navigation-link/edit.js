@@ -265,6 +265,64 @@ export const updateNavigationLinkBlockAttributes = (
 	} );
 };
 
+const useIsInvalidLink = ( kind, type, id ) => {
+	const isPostType =
+		kind === 'post-type' || type === 'post' || type === 'page';
+	const hasId = Number.isInteger( id );
+	const postStatus = useSelect(
+		( select ) => {
+			if ( ! isPostType ) {
+				return null;
+			}
+			const { getEntityRecord } = select( coreStore );
+			return getEntityRecord( 'postType', type, id )?.status;
+		},
+		[ isPostType, type, id ]
+	);
+
+	// Check Navigation Link validity if:
+	// 1. Link is 'post-type'.
+	// 2. It has an id.
+	// 3. It's neither null, nor undefined, as valid items might be either of those while loading.
+	// If those conditions are met, check if
+	// 1. The post status is published.
+	// 2. The Navigation Link item has no label.
+	// If either of those is true, invalidate.
+	const isInvalid =
+		isPostType && hasId && postStatus && 'trash' === postStatus;
+	const isDraft = 'draft' === postStatus;
+
+	return [ isInvalid, isDraft ];
+};
+
+const useMissingText = ( type ) => {
+	let missingText = '';
+
+	switch ( type ) {
+		case 'post':
+			/* translators: label for missing post in navigation link block */
+			missingText = __( 'Select post' );
+			break;
+		case 'page':
+			/* translators: label for missing page in navigation link block */
+			missingText = __( 'Select page' );
+			break;
+		case 'category':
+			/* translators: label for missing category in navigation link block */
+			missingText = __( 'Select category' );
+			break;
+		case 'tag':
+			/* translators: label for missing tag in navigation link block */
+			missingText = __( 'Select tag' );
+			break;
+		default:
+			/* translators: label for missing values in navigation link block */
+			missingText = __( 'Add link' );
+	}
+
+	return <span>{ missingText }</span>;
+};
+
 export default function NavigationLinkEdit( {
 	attributes,
 	isSelected,
@@ -276,6 +334,7 @@ export default function NavigationLinkEdit( {
 	clientId,
 } ) {
 	const {
+		id,
 		label,
 		type,
 		opensInNewTab,
@@ -297,6 +356,7 @@ export default function NavigationLinkEdit( {
 	const isDraggingWithin = useIsDraggingWithin( listItemRef );
 	const itemLabelPlaceholder = __( 'Add link…' );
 	const ref = useRef();
+	const [ isInvalid, isDraft ] = useIsInvalidLink( kind, type, id );
 
 	const {
 		isAtMaxNesting,
@@ -497,7 +557,7 @@ export default function NavigationLinkEdit( {
 		onKeyDown,
 	} );
 
-	if ( ! url ) {
+	if ( ! url || isInvalid || isDraft ) {
 		blockProps.onClick = () => setIsLinkOpen( true );
 	}
 
@@ -544,32 +604,16 @@ export default function NavigationLinkEdit( {
 		'wp-block-navigation-link__content',
 		'wp-block-navigation-item__content',
 		{
-			'wp-block-navigation-link__placeholder': ! url,
+			'wp-block-navigation-link__placeholder':
+				! url || isInvalid || isDraft,
 		}
 	);
 
-	let missingText = '';
-	switch ( type ) {
-		case 'post':
-			/* translators: label for missing post in navigation link block */
-			missingText = __( 'Select post' );
-			break;
-		case 'page':
-			/* translators: label for missing page in navigation link block */
-			missingText = __( 'Select page' );
-			break;
-		case 'category':
-			/* translators: label for missing category in navigation link block */
-			missingText = __( 'Select category' );
-			break;
-		case 'tag':
-			/* translators: label for missing tag in navigation link block */
-			missingText = __( 'Select tag' );
-			break;
-		default:
-			/* translators: label for missing values in navigation link block */
-			missingText = __( 'Add link' );
-	}
+	const missingText = useMissingText( type, isInvalid, isDraft );
+	/* translators: Whether the navigation link is Invalid or a Draft. */
+	const placeholderText = `(${
+		isInvalid ? __( 'Invalid' ) : __( 'Draft' )
+	})`;
 
 	return (
 		<Fragment>
@@ -631,36 +675,59 @@ export default function NavigationLinkEdit( {
 							{ missingText }
 						</div>
 					) : (
-						<RichText
-							ref={ ref }
-							identifier="label"
-							className="wp-block-navigation-link__label"
-							value={ label }
-							onChange={ ( labelValue ) =>
-								setAttributes( { label: labelValue } )
-							}
-							onMerge={ mergeBlocks }
-							onReplace={ onReplace }
-							__unstableOnSplitAtEnd={ () =>
-								insertBlocksAfter(
-									createBlock( 'core/navigation-link' )
-								)
-							}
-							aria-label={ __( 'Navigation link text' ) }
-							placeholder={ itemLabelPlaceholder }
-							withoutInteractiveFormatting
-							allowedFormats={ [
-								'core/bold',
-								'core/italic',
-								'core/image',
-								'core/strikethrough',
-							] }
-							onClick={ () => {
-								if ( ! url ) {
-									setIsLinkOpen( true );
-								}
-							} }
-						/>
+						<>
+							{ ! isInvalid && ! isDraft && (
+								<RichText
+									ref={ ref }
+									identifier="label"
+									className="wp-block-navigation-link__label"
+									value={ label }
+									onChange={ ( labelValue ) =>
+										setAttributes( { label: labelValue } )
+									}
+									onMerge={ mergeBlocks }
+									onReplace={ onReplace }
+									__unstableOnSplitAtEnd={ () =>
+										insertBlocksAfter(
+											createBlock(
+												'core/navigation-link'
+											)
+										)
+									}
+									aria-label={ __( 'Navigation link text' ) }
+									placeholder={ itemLabelPlaceholder }
+									withoutInteractiveFormatting
+									allowedFormats={ [
+										'core/bold',
+										'core/italic',
+										'core/image',
+										'core/strikethrough',
+									] }
+									onClick={ () => {
+										if ( ! url ) {
+											setIsLinkOpen( true );
+										}
+									} }
+								/>
+							) }
+							{ ( isInvalid || isDraft ) && (
+								<div className="wp-block-navigation-link__placeholder-text wp-block-navigation-link__label">
+									<KeyboardShortcuts
+										shortcuts={ {
+											enter: () =>
+												isSelected &&
+												setIsLinkOpen( true ),
+										} }
+									/>
+									<span>
+										{
+											/* Trim to avoid trailing white space when the placeholder text is not present */
+											`${ label } ${ placeholderText }`.trim()
+										}
+									</span>
+								</div>
+							) }
+						</>
 					) }
 					{ isLinkOpen && (
 						<Popover
