@@ -212,6 +212,9 @@
 				}
 			]
 		},
+		"dimensions": {
+			"height": false
+		},
 		"spacing": {
 			"blockGap": null,
 			"customMargin": false,
