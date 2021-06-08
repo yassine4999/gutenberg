@@ -62,6 +62,7 @@ class WP_Theme_JSON_Gutenberg {
 		),
 		'dimensions' => array(
 			'height' => null,
+			'width'  => null,
 		),
 		'filter'     => array(
 			'duotone' => null,
@@ -104,6 +105,7 @@ class WP_Theme_JSON_Gutenberg {
 		'custom'     => null,
 		'dimensions' => array(
 			'height' => null,
+			'width'  => null,
 		),
 		'layout'     => array(
 			'contentSize' => null,
@@ -238,7 +240,6 @@ class WP_Theme_JSON_Gutenberg {
 		'font-size'                  => array( 'typography', 'fontSize' ),
 		'font-style'                 => array( 'typography', 'fontStyle' ),
 		'font-weight'                => array( 'typography', 'fontWeight' ),
-		'height'                     => array( 'dimensions', 'height' ),
 		'letter-spacing'             => array( 'typography', 'letterSpacing' ),
 		'line-height'                => array( 'typography', 'lineHeight' ),
 		'margin'                     => array( 'spacing', 'margin' ),
@@ -255,6 +256,8 @@ class WP_Theme_JSON_Gutenberg {
 		'text-decoration'            => array( 'typography', 'textDecoration' ),
 		'text-transform'             => array( 'typography', 'textTransform' ),
 		'filter'                     => array( 'filter', 'duotone' ),
+		'height'                     => array( 'dimensions', 'height' ),
+		'width'                      => array( 'dimensions', 'width' ),
 	);
 
 	/**

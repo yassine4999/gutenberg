@@ -213,7 +213,8 @@
 			]
 		},
 		"dimensions": {
-			"height": false
+			"height": false,
+			"width": false
 		},
 		"spacing": {
 			"blockGap": null,
