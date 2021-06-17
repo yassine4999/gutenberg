@@ -118,10 +118,9 @@ build_files=$(
 	build/edit-widgets/blocks/*/block.json \
 )
 
-
-# Generate the plugin zip file.
-status "Creating archive... 🎁"
-zip -r gutenberg.zip \
+# Copy plugin files to gutenberg/ and retain folder structure.
+mkdir gutenberg/
+rsync -Rav \
 	gutenberg.php \
 	lib \
 	packages/block-serialization-default-parser/*.php \
@@ -130,7 +129,17 @@ zip -r gutenberg.zip \
 	$build_files \
 	readme.txt \
 	changelog.txt \
-	README.md
+	README.md \
+	gutenberg/
+
+if [ -z "$NO_ZIP" ]; then
+	# Generate the plugin zip file.
+	status "Creating archive... 🎁"
+	cd gutenberg/
+	zip -r ../gutenberg.zip *
+	cd ..
+	rm -rf gutenberg/
+fi
 
 # Reset `gutenberg.php`.
 git checkout gutenberg.php
