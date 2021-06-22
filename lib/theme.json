@@ -232,6 +232,9 @@
 			"core/button": {
 				"border": {
 					"customRadius": true
+				},
+				"dimensions": {
+					"width": true
 				}
 			},
 			"core/pullquote": {
