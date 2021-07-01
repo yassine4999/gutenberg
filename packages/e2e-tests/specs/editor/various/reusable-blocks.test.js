@@ -14,6 +14,7 @@ import {
 	toggleGlobalBlockInserter,
 	openDocumentSettingsSidebar,
 	saveDraft,
+	publishPost,
 } from '@wordpress/e2e-test-utils';
 
 const reusableBlockNameInputSelector =
@@ -22,10 +23,19 @@ const reusableBlockInspectorNameInputSelector =
 	'.block-editor-block-inspector .components-text-control__input';
 
 const saveAll = async () => {
+	const publishButtonSelector =
+		'.editor-post-publish-button__button.has-changes-dot';
+	const ariaDisabled = await page.$eval(
+		publishButtonSelector,
+		( element ) => element.ariaDisabled
+	);
+	expect( ariaDisabled ).not.toBe( 'true' );
+
 	await page.click( '.editor-post-publish-button__button.has-changes-dot' );
 	await page.waitForSelector(
 		'button.editor-entities-saved-states__save-button'
 	);
+
 	await page.click( 'button.editor-entities-saved-states__save-button' );
 
 	// no need to publish the post.
@@ -135,6 +145,39 @@ describe( 'Reusable blocks', () => {
 			( element ) => element.innerText
 		);
 		expect( paragraphContent ).toMatch( 'Oh! Hello there!' );
+	} );
+
+	// Check for regressions of https://github.com/WordPress/gutenberg/issues/33072.
+	it( 'can be saved when modified inside of a published post', async () => {
+		await createReusableBlock(
+			'Guten Berg!',
+			'Alternative greeting block'
+		);
+		await publishPost();
+
+		// Close publish panel.
+		await Promise.all( [
+			page.waitForFunction(
+				() => ! document.querySelector( '.editor-post-publish-panel' )
+			),
+			page.click( '.editor-post-publish-panel__header button' ),
+		] );
+
+		await page.waitForSelector( 'p[aria-label="Paragraph block"]' );
+		await page.click( 'p[aria-label="Paragraph block"]' );
+
+		// Change the block's content
+		await page.keyboard.type( ' Hello!' );
+
+		// Save the reusable block
+		await saveAll();
+
+		// Check that its content is up to date
+		const paragraphContent = await page.$eval(
+			'p[aria-label="Paragraph block"]',
+			( element ) => element.innerText
+		);
+		expect( paragraphContent ).toMatch( 'Guten Berg! Hello!' );
 	} );
 
 	it( 'can be inserted after refresh', async () => {
