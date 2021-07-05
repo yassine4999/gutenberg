@@ -23,20 +23,14 @@ const reusableBlockInspectorNameInputSelector =
 	'.block-editor-block-inspector .components-text-control__input';
 
 const saveAll = async () => {
-	const publishButtonSelector =
-		'.editor-post-publish-button__button.has-changes-dot';
-	const ariaDisabled = await page.$eval(
-		publishButtonSelector,
-		( element ) => element.ariaDisabled
-	);
-	expect( ariaDisabled ).not.toBe( 'true' );
+	const publishButtonSelector = '.editor-post-publish-button__button.has-changes-dot';
+	// Wait for the Publish button to become enabled in case the editor is autosaving ATM:
+	const publishButton = await page.waitForSelector( publishButtonSelector + '[aria-disabled="false"]' );
+	await publishButton.click();
 
-	await page.click( '.editor-post-publish-button__button.has-changes-dot' );
-	await page.waitForSelector(
-		'button.editor-entities-saved-states__save-button'
-	);
-
-	await page.click( 'button.editor-entities-saved-states__save-button' );
+	const saveButtonSelector = 'button.editor-entities-saved-states__save-button';
+	const saveButton = await page.waitForSelector( saveButtonSelector );
+	await saveButton.click();
 };
 
 const saveAllButDontPublish = async () => {
