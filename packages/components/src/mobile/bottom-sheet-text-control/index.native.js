@@ -78,7 +78,7 @@ const BottomSheetTextControl = ( {
 					<TextInput
 						label={ label }
 						onChangeText={ ( text ) => onChangeText( text ) }
-						onChange={ onChange( value ) }
+						onChange={ onChange }
 						value={ value }
 						multiline={ true }
 						placeholder={ placeholder }
