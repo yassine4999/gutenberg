@@ -35,7 +35,7 @@ provideToNativeHtml.mockImplementation( ( html ) => {
 } );
 
 export async function initializeEditor( props ) {
-	const renderResult = render(
+	const screen = render(
 		<Editor
 			postId={ `post-id-${ uuid() }` }
 			postType="post"
@@ -43,23 +43,22 @@ export async function initializeEditor( props ) {
 			{ ...props }
 		/>
 	);
-	const { getByTestId } = renderResult;
 
-	const blockListWrapper = await waitFor( () =>
-		getByTestId( 'block-list-wrapper' )
-	);
+	const blockListWrapper = await screen.findByTestId( 'block-list-wrapper' );
 
 	// onLayout event has to be explicitly dispatched in BlockList component,
 	// otherwise the inner blocks are not rendered.
-	fireEvent( blockListWrapper, 'layout', {
-		nativeEvent: {
-			layout: {
-				width: 100,
+	await act( async () => {
+		fireEvent( blockListWrapper, 'layout', {
+			nativeEvent: {
+				layout: {
+					width: 100,
+				},
 			},
-		},
+		} );
 	} );
 
-	return renderResult;
+	return screen;
 }
 
 export * from '@testing-library/react-native';
