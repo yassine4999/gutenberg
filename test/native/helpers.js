@@ -48,14 +48,12 @@ export async function initializeEditor( props ) {
 
 	// onLayout event has to be explicitly dispatched in BlockList component,
 	// otherwise the inner blocks are not rendered.
-	await act( async () => {
-		fireEvent( blockListWrapper, 'layout', {
-			nativeEvent: {
-				layout: {
-					width: 100,
-				},
+	fireEvent( blockListWrapper, 'layout', {
+		nativeEvent: {
+			layout: {
+				width: 100,
 			},
-		} );
+		},
 	} );
 
 	return screen;
