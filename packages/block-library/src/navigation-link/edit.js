@@ -16,6 +16,7 @@ import {
 	TextareaControl,
 	ToolbarButton,
 	ToolbarGroup,
+	KeyboardShortcuts,
 } from '@wordpress/components';
 import { displayShortcut, isKeyboardEvent, ENTER } from '@wordpress/keycodes';
 import { __, sprintf } from '@wordpress/i18n';
