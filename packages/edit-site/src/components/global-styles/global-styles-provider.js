@@ -26,7 +26,7 @@ function mergeTreesCustomizer( _, srcValue ) {
 	}
 }
 
-function mergeBaseAndUserConfigs( base, user ) {
+export function mergeBaseAndUserConfigs( base, user ) {
 	return mergeWith( {}, base, user, mergeTreesCustomizer );
 }
 
@@ -94,7 +94,6 @@ function useGlobalStylesUserConfig() {
 	}, [] );
 	const { getEditedEntityRecord } = useSelect( coreStore );
 	const { editEntityRecord } = useDispatch( coreStore );
-
 	const config = useMemo( () => {
 		return parseUserGlobalStyles( content );
 	}, [ content ] );
