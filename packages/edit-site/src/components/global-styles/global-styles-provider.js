@@ -54,6 +54,31 @@ function removeUserOriginFromSettings( settingsToRemove ) {
 	return newSettings;
 }
 
+export function parseUserGlobalStyles( contentToParse ) {
+	let parsedConfig;
+	try {
+		parsedConfig = contentToParse ? JSON.parse( contentToParse ) : {};
+		// It is very important to verify if the flag isGlobalStylesUserThemeJSON is true.
+		// If it is not true the content was not escaped and is not safe.
+		if ( ! parsedConfig.isGlobalStylesUserThemeJSON ) {
+			parsedConfig = {};
+		} else {
+			parsedConfig = {
+				...parsedConfig,
+				settings: addUserOriginToSettings( parsedConfig.settings ),
+			};
+		}
+	} catch ( e ) {
+		/* eslint-disable no-console */
+		console.error( 'Global Styles User data is not valid' );
+		console.error( e );
+		/* eslint-enable no-console */
+		parsedConfig = {};
+	}
+
+	return parsedConfig;
+}
+
 function useGlobalStylesUserConfig() {
 	const { globalStylesId, content } = useSelect( ( select ) => {
 		const _globalStylesId = select( editSiteStore ).getSettings()
@@ -70,38 +95,13 @@ function useGlobalStylesUserConfig() {
 	const { getEditedEntityRecord } = useSelect( coreStore );
 	const { editEntityRecord } = useDispatch( coreStore );
 
-	const parseContent = ( contentToParse ) => {
-		let parsedConfig;
-		try {
-			parsedConfig = contentToParse ? JSON.parse( contentToParse ) : {};
-			// It is very important to verify if the flag isGlobalStylesUserThemeJSON is true.
-			// If it is not true the content was not escaped and is not safe.
-			if ( ! parsedConfig.isGlobalStylesUserThemeJSON ) {
-				parsedConfig = {};
-			} else {
-				parsedConfig = {
-					...parsedConfig,
-					settings: addUserOriginToSettings( parsedConfig.settings ),
-				};
-			}
-		} catch ( e ) {
-			/* eslint-disable no-console */
-			console.error( 'Global Styles User data is not valid' );
-			console.error( e );
-			/* eslint-enable no-console */
-			parsedConfig = {};
-		}
-
-		return parsedConfig;
-	};
-
 	const config = useMemo( () => {
-		return parseContent( content );
+		return parseUserGlobalStyles( content );
 	}, [ content ] );
 
 	const setConfig = useCallback(
 		( callback ) => {
-			const currentConfig = parseContent(
+			const currentConfig = parseUserGlobalStyles(
 				getEditedEntityRecord(
 					'postType',
 					'wp_global_styles',
