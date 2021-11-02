@@ -8,6 +8,12 @@ import { castArray, defaults, pick, noop } from 'lodash';
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useDispatch } from '@wordpress/data';
+
+/**
+ * Internal dependencies
+ */
+import { store as mediaUtilsStore } from '../../store';
 
 const { wp } = window;
 
@@ -242,6 +248,7 @@ export default function MediaUpload( {
 	multiple = false,
 	title = __( 'Select or Upload Media' ),
 	onSelect = noop,
+	onRemove = noop,
 	render = noop,
 	onClose = noop,
 	value = [],
@@ -249,6 +256,7 @@ export default function MediaUpload( {
 } ) {
 	const frame = useRef();
 	const [ lastGalleryValue, setLastGalleryValue ] = useState( null );
+	const { removeAttachment } = useDispatch( mediaUtilsStore );
 	let GalleryDetailsMediaFrame;
 
 	const renderOpenModal = () => {
@@ -310,6 +318,14 @@ export default function MediaUpload( {
 	const onCloseModal = () => {
 		if ( onClose ) {
 			onClose();
+		}
+	};
+
+	const onRemoveSelectedAttachment = ( attachment ) => {
+		if ( attachment.destroyed ) {
+			console.log( 'onRemoveSelectedAttachment', attachment );
+			removeAttachment( attachment );
+			onRemove( attachment );
 		}
 	};
 
@@ -410,6 +426,11 @@ export default function MediaUpload( {
 		frame.current?.on( 'update', onUpdate );
 		frame.current?.on( 'open', onOpenModal );
 		frame.current?.on( 'close', onCloseModal );
+		frame.current?.listenTo(
+			wp.media.model.Attachments.all,
+			'remove',
+			onRemoveSelectedAttachment
+		);
 	}
 
 	function initializeMediaUploadFrame() {
