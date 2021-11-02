@@ -13,10 +13,9 @@ import { combineReducers } from '@wordpress/data';
  * @return {Array} Updated state.
  */
 export function deletedAttachments( state = [], action ) {
-	console.log( 'deletedAttachments', state, action );
 	switch ( action.type ) {
 		case 'REMOVE_ATTACHMENT':
-			return [ ...state, action.attachment ];
+			return [ ...state, ...[ action.attachment ] ];
 	}
 
 	return state;
