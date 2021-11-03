@@ -242,6 +242,11 @@ function render_block_core_navigation( $attributes, $content, $block ) {
 		wp_enqueue_script( 'wp-block-navigation-view' );
 	}
 
+	$should_load_modal_view_script = isset( $attributes['overlayMenu'] ) && 'never' !== $attributes['overlayMenu'];
+	if ( $should_load_modal_view_script ) {
+		wp_enqueue_script( 'wp-block-navigation-view-modal' );
+	}
+
 	$inner_blocks = $block->inner_blocks;
 
 	// If `__unstableLocation` is defined, create inner blocks from the classic menu assigned to that location.
