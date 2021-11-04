@@ -724,7 +724,7 @@ class RCTAztecView: Aztec.TextView {
 // MARK: UITextView Delegate Methods
 extension RCTAztecView: UITextViewDelegate {
 
-    func textViewDidChangeSelection(_ textView: UITextView) {
+    @nonobjc func textViewDidChangeSelection(_ textView: UITextView) {
         guard isFirstResponder, isInsertingDictationResult == false else {
             return
         }
@@ -733,11 +733,11 @@ extension RCTAztecView: UITextViewDelegate {
         propagateSelectionChanges()
     }
 
-    func textViewDidBeginEditing(_ textView: UITextView) {
+    @nonobjc func textViewDidBeginEditing(_ textView: UITextView) {
         correctSelectionAfterLastEmptyLine()
     }
 
-    func textViewDidChange(_ textView: UITextView) {
+    @nonobjc func textViewDidChange(_ textView: UITextView) {
         guard isInsertingDictationResult == false else {
             return
         }
@@ -748,14 +748,14 @@ extension RCTAztecView: UITextViewDelegate {
         textView.setNeedsLayout()
     }
 
-    override func becomeFirstResponder() -> Bool {
+    @nonobjc override func becomeFirstResponder() -> Bool {
         if !isFirstResponder && canBecomeFirstResponder {
             onFocus?([:])
         }
         return super.becomeFirstResponder()
     }
 
-    func textViewDidEndEditing(_ textView: UITextView) {
+    @nonobjc func textViewDidEndEditing(_ textView: UITextView) {
         let text = packForRN(cleanHTML(), withName: "text")
         onBlur?(text)
     }
