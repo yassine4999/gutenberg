@@ -41,9 +41,7 @@ open class GutenbergWebSingleBlockViewController: UIViewController {
     open override func viewDidLoad() {
         super.viewDidLoad()
         webView.navigationDelegate = self
-        if #available(iOS 13.0, *) {
-            isModalInPresentation = true
-        }
+        isModalInPresentation = true
         addNavigationBarElements()
         addCoverView()
         loadWebView()
