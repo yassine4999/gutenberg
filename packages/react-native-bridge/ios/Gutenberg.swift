@@ -228,19 +228,21 @@ public class Gutenberg: NSObject {
 extension Gutenberg: RCTBridgeDelegate {
     public func sourceURL(for bridge: RCTBridge!) -> URL! {
         #if DEBUG
-        var isOnCellularNetwork = false
-        let monitor = NWPathMonitor()
-        let semaphore = DispatchSemaphore(value: 0)
-        monitor.pathUpdateHandler = { path in
-            isOnCellularNetwork = path.isExpensive
-            semaphore.signal()
-        }
-        let monitorQueue = DispatchQueue(label: "org.wordpress.network-path-monitor")
-        monitor.start(queue: monitorQueue)
-        semaphore.wait(timeout: .distantFuture)
-        monitor.cancel()
-        if isOnCellularNetwork {
-            return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+        if #available(iOS 12.0, *) {
+            var isOnCellularNetwork = false
+            let monitor = NWPathMonitor()
+            let semaphore = DispatchSemaphore(value: 0)
+            monitor.pathUpdateHandler = { path in
+                isOnCellularNetwork = path.isExpensive
+                semaphore.signal()
+            }
+            let monitorQueue = DispatchQueue(label: "org.wordpress.network-path-monitor")
+            monitor.start(queue: monitorQueue)
+            semaphore.wait(timeout: .distantFuture)
+            monitor.cancel()
+            if isOnCellularNetwork {
+                return Bundle.main.url(forResource: "main", withExtension: "jsbundle")
+            }
         }
         #endif
         return RCTBundleURLProvider.sharedSettings()?.jsBundleURL(forBundleRoot: "index", fallbackResource: "")
