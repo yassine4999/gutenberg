@@ -108,7 +108,11 @@ open class GutenbergWebSingleBlockViewController: UIViewController {
 
     func addCoverView() {
         webView.addSubview(coverView)
-        coverView.backgroundColor = UIColor.systemBackground
+        if #available(iOS 13.0, *) {
+            coverView.backgroundColor = UIColor.systemBackground
+        } else {
+            coverView.backgroundColor = UIColor.white
+        }
         coverView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             coverView.leadingAnchor.constraint(equalTo: webView.leadingAnchor),
