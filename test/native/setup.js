@@ -2,7 +2,10 @@
  * External dependencies
  */
 import 'react-native-gesture-handler/jestSetup';
+import { setUpTests as setUpReanimatedMocks } from 'react-native-reanimated/lib/reanimated2/jestUtils';
 import { NativeModules as RNNativeModules } from 'react-native';
+
+setUpReanimatedMocks();
 
 RNNativeModules.UIManager = RNNativeModules.UIManager || {};
 RNNativeModules.UIManager.RCTView = RNNativeModules.UIManager.RCTView || {};
@@ -137,16 +140,6 @@ jest.mock( 'react-native-hsv-color-picker', () => () => 'HsvColorPicker', {
 
 jest.mock( '@react-native-community/blur', () => () => 'BlurView', {
 	virtual: true,
-} );
-
-jest.mock( 'react-native-reanimated', () => {
-	const Reanimated = require( 'react-native-reanimated/mock' );
-
-	// The mock for `call` immediately calls the callback which is incorrect
-	// So we override it with a no-op
-	Reanimated.default.call = () => {};
-
-	return Reanimated;
 } );
 
 // Silence the warning: Animated: `useNativeDriver` is not supported because the
