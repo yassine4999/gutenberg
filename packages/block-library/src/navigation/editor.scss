@@ -191,6 +191,15 @@ $color-control-label-height: 20px;
 	background: none;
 	min-height: 0;
 
+	// Inherit orientation.
+	&,
+	.components-placeholder__fieldset,
+	.wp-block-navigation-placeholder__controls,
+	.wp-block-navigation-placeholder__preview,
+	.wp-block-navigation-placeholder__actions {
+		flex-direction: inherit;
+	}
+
 	// Needed for the preview menu items to match actual menu items.
 	.components-placeholder__fieldset {
 		font-size: inherit;
@@ -271,20 +280,8 @@ $color-control-label-height: 20px;
 	}
 
 	&:not(.is-loading) {
-		// Don't show the preview boxes for an empty nav block,
-		// but be technically present to help size the empty state.
+		// Don't show the preview boxes for an empty nav block.
 		.wp-block-navigation.is-selected & {
-			display: flex;
-			opacity: 0;
-			width: 0;
-			overflow: hidden;
-			flex-wrap: nowrap;
-			flex: 0;
-		}
-
-		// Hide entirely when vertical.
-		.wp-block-navigation.is-selected .is-small &,
-		.wp-block-navigation.is-selected .is-medium & {
 			display: none;
 		}
 	}
@@ -297,7 +294,7 @@ $color-control-label-height: 20px;
 	background-color: $white;
 	box-shadow: inset 0 0 0 $border-width $gray-900;
 	flex-direction: row;
-	align-items: center;
+	align-items: flex-start;
 	display: none;
 	position: relative;
 	z-index: 1;
