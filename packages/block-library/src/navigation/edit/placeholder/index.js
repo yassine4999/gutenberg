@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { createBlock } from '@wordpress/blocks';
 import {
 	Placeholder,
 	Button,
@@ -143,11 +142,6 @@ export default function NavigationPlaceholder( {
 
 	const onCreateEmptyMenu = () => {
 		onFinishMenuCreation( [] );
-	};
-
-	const onCreateAllPages = () => {
-		const block = [ createBlock( 'core/page-list' ) ];
-		onFinishMenuCreation( block );
 	};
 
 	useEffect( () => {
