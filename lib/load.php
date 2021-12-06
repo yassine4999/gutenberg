@@ -147,6 +147,8 @@ if ( ! function_exists( 'wp_webfonts' ) ) {
 
 	/** WordPress Webfonts Classes & Functions */
 	require_once __DIR__ . '/class-wp-webfonts.php';
+	require_once __DIR__ . '/class-wp-webfonts-provider.php';
+	require_once __DIR__ . '/class-wp-webfonts-provider-local.php';
 	require_once __DIR__ . '/webfonts.php';
 
 	/**
