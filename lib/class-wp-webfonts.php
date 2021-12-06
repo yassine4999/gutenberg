@@ -20,15 +20,6 @@ class WP_Webfonts {
 	private static $webfonts = array();
 
 	/**
-	 * An array of registered providers.
-	 *
-	 * @static
-	 * @access private
-	 * @var array
-	 */
-	private static $providers = array();
-
-	/**
 	 * Stylesheet handle.
 	 *
 	 * @var string
@@ -39,9 +30,6 @@ class WP_Webfonts {
 	 * Init.
 	 */
 	public function init() {
-
-		// Register default providers.
-		$this->register_provider( 'local', 'WP_Webfonts_Provider_Local' );
 
 		// Register callback to generate and enqueue styles.
 		if ( did_action( 'wp_enqueue_scripts' ) ) {
@@ -67,15 +55,6 @@ class WP_Webfonts {
 	}
 
 	/**
-	 * Get the list of providers.
-	 *
-	 * @return array
-	 */
-	public function get_providers() {
-		return self::$providers;
-	}
-
-	/**
 	 * Register a webfont.
 	 *
 	 * @param array $font The font arguments.
@@ -95,7 +74,7 @@ class WP_Webfonts {
 	 * @return string
 	 */
 	public function get_font_id( $font ) {
-		return sanitize_title( "{$font['font-family']}-{$font['font-weight']}-{$font['font-style']}-{$font['provider']}" );
+		return sanitize_title( "{$font['font-family']}-{$font['font-weight']}-{$font['font-style']}" );
 	}
 
 	/**
@@ -109,7 +88,6 @@ class WP_Webfonts {
 		$font = wp_parse_args(
 			$font,
 			array(
-				'provider'     => 'local',
 				'font-family'  => '',
 				'font-style'   => 'normal',
 				'font-weight'  => '400',
@@ -123,34 +101,29 @@ class WP_Webfonts {
 			return false;
 		}
 
-		// Local fonts need a "src".
-		if ( 'local' === $font['provider'] ) {
-			// Make sure that local fonts have 'src' defined.
-			if ( empty( $font['src'] ) || ( ! is_string( $font['src'] ) && ! is_array( $font['src'] ) ) ) {
-				trigger_error( __( 'Webfont src must be a non-empty string or an array of strings.', 'gutenberg' ) );
-				return false;
-			}
+		// Fonts need a "src".
+		if ( empty( $font['src'] ) || ( ! is_string( $font['src'] ) && ! is_array( $font['src'] ) ) ) {
+			trigger_error( __( 'Webfont src must be a non-empty string or an array of strings.', 'gutenberg' ) );
+			return false;
 		}
 
 		// Validate the 'src' property.
-		if ( ! empty( $font['src'] ) ) {
-			foreach ( (array) $font['src'] as $src ) {
-				if ( empty( $src ) || ! is_string( $src ) ) {
-					trigger_error( __( 'Each webfont src must be a non-empty string.', 'gutenberg' ) );
-					return false;
-				}
+		foreach ( (array) $font['src'] as $src ) {
+			if ( empty( $src ) || ! is_string( $src ) ) {
+				trigger_error( __( 'Each webfont src must be a non-empty string.', 'gutenberg' ) );
+				return false;
+			}
 
-				if (
-					// Validate data URLs.
-					! preg_match( '/^data:.+;base64/', $src ) &&
-					// Validate URLs.
-					! filter_var( $src, FILTER_VALIDATE_URL ) &&
-					// Check if it's a URL starting with "//" (omitted protocol).
-					0 !== strpos( $src, '//' )
-				) {
-					trigger_error( __( 'Webfont src must be a valid URL or a data URI.', 'gutenberg' ) );
-					return false;
-				}
+			if (
+				// Validate data URLs.
+				! preg_match( '/^data:.+;base64/', $src ) &&
+				// Validate URLs.
+				! filter_var( $src, FILTER_VALIDATE_URL ) &&
+				// Check if it's a URL starting with "//" (omitted protocol).
+				0 !== strpos( $src, '//' )
+			) {
+				trigger_error( __( 'Webfont src must be a valid URL or a data URI.', 'gutenberg' ) );
+				return false;
 			}
 		}
 
@@ -196,9 +169,6 @@ class WP_Webfonts {
 			'size-adjust',
 			'src',
 			'unicode-range',
-
-			// Exceptions.
-			'provider',
 		);
 
 		foreach ( $font as $prop => $value ) {
@@ -211,27 +181,11 @@ class WP_Webfonts {
 	}
 
 	/**
-	 * Register a provider.
-	 *
-	 * @param string $provider The provider name.
-	 * @param string $class    The provider class name.
-	 *
-	 * @return bool Whether the provider was registered successfully.
-	 */
-	public function register_provider( $provider, $class ) {
-		if ( empty( $provider ) || empty( $class ) ) {
-			return false;
-		}
-		self::$providers[ $provider ] = $class;
-		return true;
-	}
-
-	/**
 	 * Generate and enqueue webfonts styles.
 	 */
 	public function generate_and_enqueue_styles() {
 		// Generate the styles.
-		$styles = $this->generate_styles();
+		$styles = $this->get_css();
 
 		// Bail out if there are no styles to enqueue.
 		if ( '' === $styles ) {
@@ -251,7 +205,7 @@ class WP_Webfonts {
 	 */
 	public function generate_and_enqueue_editor_styles() {
 		// Generate the styles.
-		$styles = $this->generate_styles();
+		$styles = $this->get_css();
 
 		// Bail out if there are no styles to enqueue.
 		if ( '' === $styles ) {
@@ -262,62 +216,230 @@ class WP_Webfonts {
 	}
 
 	/**
-	 * Generate styles for webfonts.
+	 * Gets the `@font-face` CSS styles for locally-hosted font files.
 	 *
-	 * By default (due to privacy concerns), this API will not do remote requests to
-	 * external webfont services nor generate `@font-face` styles for these remote
-	 * providers. The filter `'has_remote_webfonts_request_permission'` is provided
-	 * to grant permission to do the remote request.
+	 * This method does the following processing tasks:
+	 *    1. Orchestrates an optimized `src` (with format) for browser support.
+	 *    2. Generates the `@font-face` for all its webfonts.
+	 *
+	 * For example, when given these webfonts:
+	 * <code>
+	 * array(
+	 *      'source-serif-pro-200-900-normal' => array(
+	 *          'font_family' => 'Source Serif Pro',
+	 *          'font_weight' => '200 900',
+	 *          'font_style'  => 'normal',
+	 *          'src'         => 'https://example.com/wp-content/themes/twentytwentytwo/assets/fonts/source-serif-pro/SourceSerif4Variable-Roman.ttf.woff2' ),
+	 *      ),
+	 *      'source-serif-pro-400-900-italic' => array(
+	 *          'font_family' => 'Source Serif Pro',
+	 *          'font_weight' => '200 900',
+	 *          'font_style'  => 'italic',
+	 *          'src'         => 'https://example.com/wp-content/themes/twentytwentytwo/assets/fonts/source-serif-pro/SourceSerif4Variable-Italic.ttf.woff2' ),
+	 *      ),
+	 * )
+	 * </code>
+	 *
+	 * the following `@font-face` styles are generated and returned:
+	 * <code>
+	 *
+	 * @font-face{
+	 *      font-family:"Source Serif Pro";
+	 *      font-style:normal;
+	 *      font-weight:200 900;
+	 *      font-stretch:normal;
+	 *      src:local("Source Serif Pro"), url('/assets/fonts/source-serif-pro/SourceSerif4Variable-Roman.ttf.woff2') format('woff2');
+	 * }
+	 * @font-face{
+	 *      font-family:"Source Serif Pro";
+	 *      font-style:italic;
+	 *      font-weight:200 900;
+	 *      font-stretch:normal;
+	 *      src:local("Source Serif Pro"), url('/assets/fonts/source-serif-pro/SourceSerif4Variable-Italic.ttf.woff2') format('woff2');
+	 * }
+	 * </code>
 	 *
 	 * @since 6.0.0
 	 *
-	 * @return string $styles Generated styles.
+	 * @return string The `@font-face` CSS.
 	 */
-	public function generate_styles() {
-		$styles    = '';
-		$providers = $this->get_providers();
+	public function get_css() {
+		$css   = '';
+		$fonts = $this->get_fonts();
 
-		// Group webfonts by provider.
-		$webfonts_by_provider = array();
-		$registered_webfonts  = $this->get_fonts();
-		foreach ( $registered_webfonts as $id => $webfont ) {
-			$provider = $webfont['provider'];
-			if ( ! isset( $providers[ $provider ] ) ) {
-				continue;
-			}
-			$webfonts_by_provider[ $provider ]        = isset( $webfonts_by_provider[ $provider ] ) ? $webfonts_by_provider[ $provider ] : array();
-			$webfonts_by_provider[ $provider ][ $id ] = $webfont;
+		foreach ( $fonts as $font ) {
+			// Order the font's `src` items to optimize for browser support.
+			$font = $this->order_src( $font );
+
+			// Build the @font-face CSS for this webfont.
+			$css .= '@font-face{' . $this->build_font_face_css( $font ) . '}';
 		}
 
-		/*
-		 * Loop through each of the providers to get the CSS for their respective webfonts
-		 * to incrementally generate the collective styles for all of them.
+		return $css;
+	}
+
+	/**
+	 * Order `src` items to optimize for browser support.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $webfont Webfont to process.
+	 * @return array
+	 */
+	private function order_src( $webfont ) {
+		if ( ! is_array( $webfont['src'] ) ) {
+			$webfont['src'] = (array) $webfont['src'];
+		}
+
+		$src         = array();
+		$src_ordered = array();
+
+		foreach ( $webfont['src'] as $url ) {
+			// Add data URIs first.
+			if ( 0 === strpos( trim( $url ), 'data:' ) ) {
+				$src_ordered[] = array(
+					'url'    => $url,
+					'format' => 'data',
+				);
+				continue;
+			}
+			$format         = pathinfo( $url, PATHINFO_EXTENSION );
+			$src[ $format ] = $url;
+		}
+
+		// Add woff2.
+		if ( ! empty( $src['woff2'] ) ) {
+			$src_ordered[] = array(
+				'url'    => $src['woff2'],
+				'format' => 'woff2',
+			);
+		}
+
+		// Add woff.
+		if ( ! empty( $src['woff'] ) ) {
+			$src_ordered[] = array(
+				'url'    => $src['woff'],
+				'format' => 'woff',
+			);
+		}
+
+		// Add ttf.
+		if ( ! empty( $src['ttf'] ) ) {
+			$src_ordered[] = array(
+				'url'    => $src['ttf'],
+				'format' => 'truetype',
+			);
+		}
+
+		// Add eot.
+		if ( ! empty( $src['eot'] ) ) {
+			$src_ordered[] = array(
+				'url'    => $src['eot'],
+				'format' => 'embedded-opentype',
+			);
+		}
+
+		// Add otf.
+		if ( ! empty( $src['otf'] ) ) {
+			$src_ordered[] = array(
+				'url'    => $src['otf'],
+				'format' => 'opentype',
+			);
+		}
+		$webfont['src'] = $src_ordered;
+
+		return $webfont;
+	}
+
+	/**
+	 * Builds the font-family's CSS.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $webfont Webfont to process.
+	 * @return string This font-family's CSS.
+	 */
+	private function build_font_face_css( $webfont ) {
+		$css = '';
+
+		// Wrap font-family in quotes if it contains spaces.
+		if (
+			false !== strpos( $webfont['font-family'], ' ' ) &&
+			false === strpos( $webfont['font-family'], '"' ) &&
+			false === strpos( $webfont['font-family'], "'" )
+		) {
+			$webfont['font-family'] = '"' . $webfont['font-family'] . '"';
+		}
+
+		foreach ( $webfont as $key => $value ) {
+			// Compile the "src" parameter.
+			if ( 'src' === $key ) {
+				$value = $this->compile_src( $webfont['font-family'], $value );
+			}
+
+			// If font-variation-settings is an array, convert it to a string.
+			if ( 'font-variation-settings' === $key && is_array( $value ) ) {
+				$value = $this->compile_variations( $value );
+			}
+
+			if ( ! empty( $value ) ) {
+				$css .= "$key:$value;";
+			}
+		}
+
+		/**
+		 * Filters the font-family's CSS.
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param string $css The font-family's CSS.
+		 * @param array  $webfont The font-family's data.
+		 *
+		 * @return string The font-family's CSS.
 		 */
-		foreach ( $providers as $provider_id => $provider_class ) {
+		return apply_filters( 'font_face_css', $css, $webfont );
+	}
 
-			// Bail out if the provider class does not exist.
-			if ( ! class_exists( $provider_class ) ) {
-				continue;
+	/**
+	 * Compiles the `src` into valid CSS.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param string $font_family Font family.
+	 * @param array  $value       Value to process.
+	 * @return string The CSS.
+	 */
+	private function compile_src( $font_family, $value ) {
+		$src = "local($font_family)";
+
+		foreach ( $value as $item ) {
+
+			if ( 0 === strpos( $item['url'], get_site_url() ) ) {
+				$item['url'] = wp_make_link_relative( $item['url'] );
 			}
 
-			$provider_webfonts = isset( $webfonts_by_provider[ $provider_id ] )
-				? $webfonts_by_provider[ $provider_id ]
-				: array();
+			$src .= ( 'data' === $item['format'] )
+				? ", url({$item['url']})"
+				: ", url('{$item['url']}') format('{$item['format']}')";
+		}
+		return $src;
+	}
 
-			// If there are no registered webfonts for this provider, skip it.
-			if ( empty( $provider_webfonts ) ) {
-				continue;
-			}
+	/**
+	 * Compiles the font variation settings.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param array $font_variation_settings Array of font variation settings.
+	 * @return string The CSS.
+	 */
+	private function compile_variations( array $font_variation_settings ) {
+		$variations = '';
 
-			/*
-			 * Process the webfonts by first passing them to the provider via `set_webfonts()`
-			 * and then getting the CSS from the provider.
-			 */
-			$provider = new $provider_class();
-			$provider->set_webfonts( $provider_webfonts );
-			$styles .= $provider->get_css();
+		foreach ( $font_variation_settings as $key => $value ) {
+			$variations .= "$key $value";
 		}
 
-		return $styles;
+		return $variations;
 	}
 }
