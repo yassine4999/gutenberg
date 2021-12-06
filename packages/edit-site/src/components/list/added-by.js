@@ -31,6 +31,46 @@ function CustomizedTooltip( { isCustomized, children } ) {
 	);
 }
 
+function BaseAddedBy( { text, icon, imageUrl, isCustomized } ) {
+	const [ isImageLoaded, setIsImageLoaded ] = useState( false );
+
+	return (
+		<HStack alignment="left">
+			<CustomizedTooltip isCustomized={ isCustomized }>
+				{ !! icon && (
+					<div
+						className={ classnames(
+							'edit-site-list-added-by__icon',
+							{
+								'is-customized': isCustomized,
+							}
+						) }
+					>
+						<Icon icon={ icon } />
+					</div>
+				) }
+				{ !! imageUrl && (
+					<div
+						className={ classnames(
+							'edit-site-list-added-by__avatar',
+							{
+								'is-loaded': isImageLoaded,
+							}
+						) }
+					>
+						<img
+							onLoad={ () => setIsImageLoaded( true ) }
+							alt=""
+							src={ imageUrl }
+						/>
+					</div>
+				) }
+			</CustomizedTooltip>
+			<span>{ text }</span>
+		</HStack>
+	);
+}
+
 function AddedByTheme( { slug, isCustomized } ) {
 	const theme = useSelect(
 		( select ) => select( coreStore ).getTheme( slug ),
@@ -38,18 +78,11 @@ function AddedByTheme( { slug, isCustomized } ) {
 	);
 
 	return (
-		<HStack alignment="left">
-			<CustomizedTooltip isCustomized={ isCustomized }>
-				<div
-					className={ classnames( 'edit-site-list-added-by__icon', {
-						'is-customized': isCustomized,
-					} ) }
-				>
-					<Icon icon={ themeIcon } />
-				</div>
-			</CustomizedTooltip>
-			<span>{ theme?.name?.rendered || slug }</span>
-		</HStack>
+		<BaseAddedBy
+			icon={ themeIcon }
+			text={ theme?.name?.rendered || slug }
+			isCustomized={ isCustomized }
+		/>
 	);
 }
 
@@ -60,14 +93,11 @@ function AddedByPlugin( { slug, isCustomized } ) {
 	);
 
 	return (
-		<HStack alignment="left">
-			<CustomizedTooltip isCustomized={ isCustomized }>
-				<div className="edit-site-list-added-by__icon">
-					<Icon icon={ pluginIcon } />
-				</div>
-			</CustomizedTooltip>
-			<span>{ plugin?.name || slug }</span>
-		</HStack>
+		<BaseAddedBy
+			icon={ pluginIcon }
+			text={ plugin?.name || slug }
+			isCustomized={ isCustomized }
+		/>
 	);
 }
 
@@ -75,23 +105,12 @@ function AddedByAuthor( { id } ) {
 	const user = useSelect( ( select ) => select( coreStore ).getUser( id ), [
 		id,
 	] );
-	const [ isImageLoaded, setIsImageLoaded ] = useState( false );
 
 	return (
-		<HStack alignment="left">
-			<div
-				className={ classnames( 'edit-site-list-added-by__avatar', {
-					'is-loaded': isImageLoaded,
-				} ) }
-			>
-				<img
-					onLoad={ () => setIsImageLoaded( true ) }
-					alt=""
-					src={ user?.avatar_urls[ 48 ] }
-				/>
-			</div>
-			<span>{ user?.nickname }</span>
-		</HStack>
+		<BaseAddedBy
+			imageUrl={ user?.avatar_urls[ 48 ] }
+			text={ user?.nickname }
+		/>
 	);
 }
 
@@ -107,23 +126,9 @@ function AddedBySite() {
 				: undefined,
 		};
 	}, [] );
-	const [ isImageLoaded, setIsImageLoaded ] = useState( false );
 
 	return (
-		<HStack alignment="left">
-			<div
-				className={ classnames( 'edit-site-list-added-by__avatar', {
-					'is-loaded': isImageLoaded,
-				} ) }
-			>
-				<img
-					onLoad={ () => setIsImageLoaded( true ) }
-					alt=""
-					src={ logoURL }
-				/>
-			</div>
-			<span>{ name }</span>
-		</HStack>
+		<BaseAddedBy icon={ pluginIcon } imageUrl={ logoURL } text={ name } />
 	);
 }
 
