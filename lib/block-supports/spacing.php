@@ -104,9 +104,15 @@ function gutenberg_skip_spacing_serialization( $block_type, $feature = null ) {
  * @return string                Filtered block content.
  */
 function gutenberg_render_spacing_gap_support( $block_content, $block ) {
-	$block_type      = WP_Block_Type_Registry::get_instance()->get_registered( $block['blockName'] );
-	$has_gap_support = gutenberg_block_has_support( $block_type, array( 'spacing', 'blockGap' ), false );
-	if ( ! $has_gap_support || ! isset( $block['attrs']['style']['spacing']['blockGap'] ) ) {
+	$block_type         = WP_Block_Type_Registry::get_instance()->get_registered( $block['blockName'] );
+	$skip_serialization = gutenberg_skip_spacing_serialization( $block_type, 'blockGap' );
+	$has_gap_support    = gutenberg_block_has_support( $block_type, array( 'spacing', 'blockGap' ), false );
+
+	if (
+		$skip_serialization ||
+		! $has_gap_support ||
+		! isset( $block['attrs']['style']['spacing']['blockGap'] )
+	) {
 		return $block_content;
 	}
 
