@@ -86,25 +86,10 @@ class WP_Webfonts_Test extends WP_UnitTestCase {
 		// Test local font with missing "src".
 		$this->assertFalse( wp_webfonts()->validate_font( array( 'font-family' => 'Test Font 2' ) ) );
 
-		// Test malformatted src.
-		$invalid_src_values = array(
-			'',                                           // Empty string.
-			array(),                                      // EMpty array.
-			10,                                           // Not a string or array.
-			array( '', 'https://example.com/font.woff2' ), // Array containing an empty string.
-			'invalid-url',                                // Not a valid URL.
-		);
-		foreach ( $invalid_src_values as $invalid_src_value ) {
-			$font['src'] = $invalid_src_value;
-			$this->assertFalse( wp_webfonts()->validate_font( $font ) );
-		}
-
 		// Test valid src URL, without a protocol.
 		$font['src'] = '//example.com/SourceSerif4Variable-Roman.ttf.woff2';
 		$this->assertEquals( wp_webfonts()->validate_font( $font )['src'], $font['src'] );
 
-		// Test valid font.
-		$this->assertNotEmpty( wp_webfonts()->validate_font( $font ) );
 
 		// Test font-style.
 		$font['font-style'] = 'invalid';

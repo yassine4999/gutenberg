@@ -139,18 +139,6 @@ class WP_Webfonts {
 					trigger_error( __( 'Each webfont src must be a non-empty string.', 'gutenberg' ) );
 					return false;
 				}
-
-				if (
-					// Validate data URLs.
-					! preg_match( '/^data:.+;base64/', $src ) &&
-					// Validate URLs.
-					! filter_var( $src, FILTER_VALIDATE_URL ) &&
-					// Check if it's a URL starting with "//" (omitted protocol).
-					0 !== strpos( $src, '//' )
-				) {
-					trigger_error( __( 'Webfont src must be a valid URL or a data URI.', 'gutenberg' ) );
-					return false;
-				}
 			}
 		}
 
