@@ -90,13 +90,6 @@ class WP_Webfonts_Test extends WP_UnitTestCase {
 		$font['src'] = '//example.com/SourceSerif4Variable-Roman.ttf.woff2';
 		$this->assertEquals( wp_webfonts()->validate_font( $font )['src'], $font['src'] );
 
-
-		// Test font-style.
-		$font['font-style'] = 'invalid';
-		$this->assertFalse( wp_webfonts()->validate_font( $font ) );
-		$font['font-style'] = 'italic';
-		$this->assertNotEmpty( wp_webfonts()->validate_font( $font ) );
-
 		// Test font-weight.
 		$font_weights = array( 100, '100', '100 900', 'normal' );
 		foreach ( $font_weights as $value ) {

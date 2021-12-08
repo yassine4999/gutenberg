@@ -142,12 +142,6 @@ class WP_Webfonts {
 			}
 		}
 
-		// Check the font-style.
-		$valid_font_styles = array( 'normal', 'italic', 'oblique', 'inherit', 'initial', 'revert', 'unset' );
-		if ( ! in_array( $font['font-style'], $valid_font_styles, true ) && ! preg_match( '/^oblique\s+(\d+)%/', $font['font-style'] ) ) {
-			return false;
-		}
-
 		// Check the font-weight.
 		if ( ! is_string( $font['font-weight'] ) && ! is_int( $font['font-weight'] ) ) {
 			trigger_error( __( 'Webfont font weight must be a properly formatted string or integer.', 'gutenberg' ) );
