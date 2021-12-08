@@ -98,15 +98,8 @@ class WP_Webfonts_Test extends WP_UnitTestCase {
 		$this->assertNotEmpty( wp_webfonts()->validate_font( $font ) );
 
 		// Test font-weight.
-		$font_weights = array(
-			'invalid' => array( 'invalid', '', '100-900' ),
-			'valid'   => array( 100, '100', '100 900', 'normal' ),
-		);
-		foreach ( $font_weights['invalid'] as $value ) {
-			$font['font-weight'] = $value;
-			$this->assertFalse( wp_webfonts()->validate_font( $font ) );
-		}
-		foreach ( $font_weights['valid'] as $value ) {
+		$font_weights = array( 100, '100', '100 900', 'normal' );
+		foreach ( $font_weights as $value ) {
 			$font['font-weight'] = $value;
 			$this->assertEquals( wp_webfonts()->validate_font( $font )['font-weight'], $value );
 		}

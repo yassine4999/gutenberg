@@ -149,17 +149,7 @@ class WP_Webfonts {
 		}
 
 		// Check the font-weight.
-		if ( // Bail out if the font-weight is not a valid value.
-			( ! is_string( $font['font-weight'] ) && ! is_int( $font['font-weight'] ) ) ||
-			(
-				// Check if value is a single font-weight, formatted as a number.
-				! in_array( $font['font-weight'], array( 'normal', 'bold', 'bolder', 'lighter', 'inherit' ), true ) &&
-				// Check if value is a single font-weight, formatted as a number.
-				! preg_match( '/^(\d+)$/', $font['font-weight'], $matches ) &&
-				// Check if value is a range of font-weights, formatted as a number range.
-				! preg_match( '/^(\d+)\s+(\d+)$/', $font['font-weight'], $matches )
-			)
-		) {
+		if ( ! is_string( $font['font-weight'] ) && ! is_int( $font['font-weight'] ) ) {
 			trigger_error( __( 'Webfont font weight must be a properly formatted string or integer.', 'gutenberg' ) );
 			return false;
 		}
