@@ -455,7 +455,6 @@ class BottomSheet extends Component {
 			scrollEventThrottle: 16,
 			contentContainerStyle: [
 				styles.content,
-				hideHeader && styles.emptyHeader,
 				contentStyle,
 				isFullScreen && { flexGrow: 1 },
 			],
@@ -549,7 +548,11 @@ class BottomSheet extends Component {
 						{ showDragIndicator() && (
 							<View style={ styles.dragIndicator } />
 						) }
-						{ ! hideHeader && getHeader() }
+						{ hideHeader ? (
+							<View style={ styles.emptyHeader } />
+						) : (
+							getHeader()
+						) }
 					</View>
 					<WrapperView
 						{ ...( hasNavigation
