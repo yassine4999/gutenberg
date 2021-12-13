@@ -780,6 +780,7 @@ importers:
       '@emotion/cache': ^11.4.0
       '@emotion/css': ^11.1.3
       '@emotion/react': ^11.4.1
+      '@emotion/serialize': ^1.0.2
       '@emotion/styled': ^11.3.0
       '@emotion/utils': 1.0.0
       '@wordpress/a11y': file:../a11y
@@ -819,6 +820,7 @@ importers:
       '@emotion/cache': 11.7.1
       '@emotion/css': 11.7.1_@babel+core@7.16.0
       '@emotion/react': 11.7.1_@babel+core@7.16.0+react@17.0.1
+      '@emotion/serialize': 1.0.2
       '@emotion/styled': 11.6.0_435560e3eae790d1638e47840498e54d
       '@emotion/utils': 1.0.0
       '@wordpress/a11y': link:../a11y
@@ -1883,10 +1885,12 @@ importers:
       '@actions/core': ^1.4.0
       '@actions/github': ^5.0.0
       '@babel/runtime': ^7.16.0
+      '@octokit/request-error': ^2.1.0
     dependencies:
       '@actions/core': 1.4.0
       '@actions/github': 5.0.0
       '@babel/runtime': 7.16.3
+      '@octokit/request-error': 2.1.0
 
   packages/react-i18n:
     specifiers:
