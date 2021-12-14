@@ -83,19 +83,18 @@ export default function Edit( {
 			<img
 				src={ avatarUrls[ avatarUrls.length - 1 ] }
 				alt={ `${ authorName } ${ __( 'Avatar' ) }` }
-				{ ...blockProps }
 			/>
 		</ResizableBox>
 	) : (
-		<p { ...blockProps }>
-			{ _x( 'Comment Author Avatar', 'block title' ) }
-		</p>
+		<p>{ _x( 'Comment Author Avatar', 'block title' ) }</p>
 	);
 
 	return (
 		<>
 			{ inspectorControls }
-			<div { ...spacingProps }>{ displayAvatar }</div>
+			<div { ...spacingProps } { ...blockProps }>
+				{ displayAvatar }
+			</div>
 		</>
 	);
 }
