@@ -10,6 +10,7 @@ import {
 	ScrollView,
 	StatusBar,
 	Text,
+	TouchableWithoutFeedback,
 	TouchableHighlight,
 	View,
 } from 'react-native';
@@ -23,6 +24,7 @@ import { omit } from 'lodash';
 import { subscribeAndroidModalClosed } from '@wordpress/react-native-bridge';
 import { Component } from '@wordpress/element';
 import { withPreferredColorScheme } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -503,6 +505,16 @@ class BottomSheet extends Component {
 				backdropTransitionInTiming={ 50 }
 				backdropTransitionOutTiming={ 50 }
 				backdropOpacity={ 0.2 }
+				// customBackdrop={
+				// 	<TouchableWithoutFeedback
+				// 		accessibilityLabel={ __( 'Dismiss bottom sheet' ) }
+				// 		accessibilityRole="button"
+				// 		onPress={ this.onCloseBottomSheet }
+				// 		importantForAccessibility="no"
+				// 	>
+				// 		<View style={ { backgroundColor: 'black', flex: 1 } } />
+				// 	</TouchableWithoutFeedback>
+				// }
 				onBackdropPress={ this.onCloseBottomSheet }
 				onBackButtonPress={ this.onHardwareButtonPress }
 				onSwipeComplete={ this.onCloseBottomSheet }
@@ -525,6 +537,7 @@ class BottomSheet extends Component {
 				{ ...omit( rest, 'onDismiss' ) }
 			>
 				<KeyboardAvoidingView
+					// pointerEvents="box-none"
 					behavior={ Platform.OS === 'ios' && 'padding' }
 					style={ {
 						...backgroundStyle,
@@ -555,6 +568,7 @@ class BottomSheet extends Component {
 						) }
 					</View>
 					<WrapperView
+						// pointerEvents="box-none"
 						{ ...( hasNavigation
 							? { style: listProps.style }
 							: listProps ) }
