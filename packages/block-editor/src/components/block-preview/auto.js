@@ -25,13 +25,18 @@ function AutoBlockPreview( { viewportWidth, __experimentalPadding } ) {
 		contentResizeListener,
 		{ height: contentHeight },
 	] = useResizeObserver();
-	const { styles, assets } = useSelect( ( select ) => {
-		const settings = select( store ).getSettings();
-		return {
-			styles: settings.styles,
-			assets: settings.__unstableResolvedAssets,
-		};
-	}, [] );
+	const { styles, assets, __unstableResolvedContentStyles } = useSelect(
+		( select ) => {
+			const settings = select( store ).getSettings();
+			return {
+				styles: settings.styles,
+				assets: settings.__unstableResolvedAssets,
+				__unstableResolvedContentStyles:
+					settings.__unstableResolvedContentStyles,
+			};
+		},
+		[]
+	);
 
 	// Initialize on render instead of module top level, to avoid circular dependency issues.
 	MemoizedBlockList = MemoizedBlockList || pure( BlockList );
@@ -49,7 +54,14 @@ function AutoBlockPreview( { viewportWidth, __experimentalPadding } ) {
 				} }
 			>
 				<Iframe
-					head={ <EditorStyles styles={ styles } /> }
+					head={
+						<EditorStyles
+							styles={ styles }
+							__unstableResolvedContentStyles={
+								__unstableResolvedContentStyles
+							}
+						/>
+					}
 					assets={ assets }
 					contentRef={ useRefEffect( ( bodyElement ) => {
 						const {

@@ -754,11 +754,38 @@ function gutenberg_resolve_assets() {
 	);
 }
 
+/**
+ * Resolves WP Dependency handles to HTML.
+ *
+ * @param array $instance WP Dependency instance.
+ * @param array $handles  Handles to resolve.
+ *
+ * @return string HTML.
+ */
+function gutenberg_resolve_dependencies( $instance, $handles ) {
+	ob_start();
+
+	$done           = $instance->done;
+	$instance->done = array();
+	$instance->do_items( array_unique( $handles ) );
+	$instance->done = $done;
+
+	return ob_get_clean();
+}
+
 add_filter(
 	'block_editor_settings_all',
 	function( $settings ) {
-		// In the future we can allow WP Dependency handles to be passed.
+		// These properties are for internal use only.
 		$settings['__unstableResolvedAssets'] = gutenberg_resolve_assets();
+		// In the future the above assets should be passed through here as well,
+		// but some stylesheets cannot be prefixed without specificity issues,
+		// so we need to make an exception.
+		$settings['__unstableResolvedContentStyles'] = gutenberg_resolve_dependencies(
+			wp_styles(),
+			$settings['__experimentalContentStyles']
+		);
 		return $settings;
-	}
+	},
+	100
 );
