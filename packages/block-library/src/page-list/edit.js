@@ -12,7 +12,12 @@ import {
 	useBlockProps,
 	getColorClassName,
 } from '@wordpress/block-editor';
-import { ToolbarButton, Placeholder, Spinner } from '@wordpress/components';
+import {
+	ToolbarButton,
+	Placeholder,
+	Spinner,
+	Notice,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useMemo, useState, memo } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
@@ -29,7 +34,11 @@ import { ItemSubmenuIcon } from '../navigation-link/icons';
 const MAX_PAGE_COUNT = 100;
 
 export default function PageListEdit( { context, clientId } ) {
-	const { pagesByParentId, totalPages } = usePagesByParentId();
+	const {
+		pagesByParentId,
+		totalPages,
+		hasResolvedPages,
+	} = usePagesByParentId();
 
 	const isNavigationChild = 'showSubmenuIcon' in context;
 	const allowConvertToLinks =
@@ -70,16 +79,29 @@ export default function PageListEdit( { context, clientId } ) {
 					clientId={ clientId }
 				/>
 			) }
-			{ totalPages === undefined && (
+			{ ! hasResolvedPages && (
 				<div { ...blockProps }>
 					<Placeholder>
 						<Spinner />
 					</Placeholder>
 				</div>
 			) }
+
+			{ hasResolvedPages && totalPages === null && (
+				<div { ...blockProps }>
+					<div { ...blockProps }>
+						<Notice status={ 'warning' } isDismissible={ false }>
+							{ __( 'Page List: Cannot retrieve Pages.' ) }
+						</Notice>
+					</div>
+				</div>
+			) }
+
 			{ totalPages === 0 && (
 				<div { ...blockProps }>
-					<span>{ __( 'Page List: No pages to show.' ) }</span>
+					<Notice status={ 'info' } isDismissible={ false }>
+						{ __( 'Page List: Cannot retrieve Pages.' ) }
+					</Notice>
 				</div>
 			) }
 			{ totalPages > 0 && (
@@ -95,8 +117,8 @@ export default function PageListEdit( { context, clientId } ) {
 }
 
 function usePagesByParentId() {
-	const { pages } = useSelect( ( select ) => {
-		const { getEntityRecords } = select( coreStore );
+	const { pages, hasResolvedPages } = useSelect( ( select ) => {
+		const { getEntityRecords, hasFinishedResolution } = select( coreStore );
 
 		return {
 			pages: getEntityRecords( 'postType', 'page', {
@@ -105,6 +127,16 @@ function usePagesByParentId() {
 				_fields: [ 'id', 'link', 'parent', 'title', 'menu_order' ],
 				per_page: -1,
 			} ),
+			hasResolvedPages: hasFinishedResolution( 'getEntityRecords', [
+				'postType',
+				'page',
+				{
+					orderby: 'menu_order',
+					order: 'asc',
+					_fields: [ 'id', 'link', 'parent', 'title', 'menu_order' ],
+					per_page: -1,
+				},
+			] ),
 		};
 	}, [] );
 
@@ -125,9 +157,10 @@ function usePagesByParentId() {
 
 		return {
 			pagesByParentId,
-			totalPages: pages?.length,
+			hasResolvedPages,
+			totalPages: pages?.length ?? null,
 		};
-	}, [ pages ] );
+	}, [ pages, hasResolvedPages ] );
 }
 
 const PageItems = memo( function PageItems( {
