@@ -757,12 +757,16 @@ function gutenberg_resolve_assets() {
 /**
  * Resolves WP Dependency handles to HTML.
  *
- * @param array $instance WP Dependency instance.
- * @param array $handles  Handles to resolve.
+ * @param array      $instance WP Dependency instance.
+ * @param array|null $handles  Handles to resolve.
  *
  * @return string HTML.
  */
 function gutenberg_resolve_dependencies( $instance, $handles ) {
+	if ( ! $handles || count( $handles ) === 0 ) {
+		return '';
+	}
+
 	ob_start();
 
 	$done           = $instance->done;
