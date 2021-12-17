@@ -136,6 +136,9 @@ class RCTAztecView: Aztec.TextView {
 
     func commonInit() {
         Configuration.headersWithBoldTrait = true
+        /// Enable only for block-based themes
+        Configuration.customHeadingFontSize = true
+        ///
         delegate = self
         textContainerInset = .zero
         contentInset = .zero

@@ -721,7 +721,7 @@ export class RichText extends Component {
 		}
 	}
 
-	shouldComponentUpdate( nextProps ) {
+	shouldComponentUpdate( nextProps, nextState ) {
 		if (
 			nextProps.tagName !== this.props.tagName ||
 			nextProps.reversed !== this.props.reversed ||
@@ -779,7 +779,10 @@ export class RichText extends Component {
 			}
 
 			if (
-				nextProps?.style?.fontSize !== this.props?.style?.fontSize ||
+				( nextProps?.style?.fontSize !== this.props?.style?.fontSize &&
+					nextState.currentFontSize !==
+						this.state.currentFontSize ) ||
+				nextState.currentFontSize !== this.state.currentFontSize ||
 				nextProps?.style?.lineHeight !== this.props?.style?.lineHeight
 			) {
 				this.needsSelectionUpdate = true;
@@ -814,7 +817,7 @@ export class RichText extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		const { style } = this.props;
+		const { style, tagName } = this.props;
 		const { currentFontSize } = this.state;
 
 		if ( this.props.value !== this.value ) {
@@ -838,10 +841,12 @@ export class RichText extends Component {
 
 		const currentFontSizeStyle = parseFloat( style?.fontSize );
 		const prevFontSizeStyle = parseFloat( prevProps?.style?.fontSize );
+		const isDifferentTag = prevProps.tagName !== tagName;
 		if (
-			currentFontSize &&
-			( currentFontSizeStyle || prevFontSizeStyle ) &&
-			currentFontSizeStyle !== currentFontSize
+			( currentFontSize &&
+				( currentFontSizeStyle || prevFontSizeStyle ) &&
+				currentFontSizeStyle !== currentFontSize ) ||
+			isDifferentTag
 		) {
 			this.setState( {
 				currentFontSize: this.getFontSize( this.props ),
