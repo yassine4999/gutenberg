@@ -41,19 +41,7 @@ function BaseAddedBy( { text, icon, imageUrl, isCustomized } ) {
 	return (
 		<HStack alignment="left">
 			<CustomizedTooltip isCustomized={ isCustomized }>
-				{ !! icon && (
-					<div
-						className={ classnames(
-							'edit-site-list-added-by__icon',
-							{
-								'is-customized': isCustomized,
-							}
-						) }
-					>
-						<Icon icon={ icon } />
-					</div>
-				) }
-				{ !! imageUrl && (
+				{ imageUrl ? (
 					<div
 						className={ classnames(
 							'edit-site-list-added-by__avatar',
@@ -67,6 +55,17 @@ function BaseAddedBy( { text, icon, imageUrl, isCustomized } ) {
 							alt=""
 							src={ imageUrl }
 						/>
+					</div>
+				) : (
+					<div
+						className={ classnames(
+							'edit-site-list-added-by__icon',
+							{
+								'is-customized': isCustomized,
+							}
+						) }
+					>
+						<Icon icon={ icon } />
 					</div>
 				) }
 			</CustomizedTooltip>
