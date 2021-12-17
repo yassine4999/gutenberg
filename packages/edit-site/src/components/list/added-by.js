@@ -120,7 +120,7 @@ function AddedBySite() {
 		const siteData = getEntityRecord( 'root', '__unstableBase' );
 
 		return {
-			name: siteData.name,
+			name: siteData?.name,
 			logoURL: siteData?.site_logo
 				? getMedia( siteData.site_logo )?.source_url
 				: undefined,
