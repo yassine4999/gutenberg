@@ -14,7 +14,11 @@ import {
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState } from '@wordpress/element';
-import { layout as themeIcon, plugins as pluginIcon } from '@wordpress/icons';
+import {
+	layout as themeIcon,
+	plugins as pluginIcon,
+	globe as globeIcon,
+} from '@wordpress/icons';
 import { __ } from '@wordpress/i18n';
 
 const TEMPLATE_POST_TYPE_NAMES = [ 'wp_template', 'wp_template_part' ];
@@ -128,7 +132,7 @@ function AddedBySite() {
 	}, [] );
 
 	return (
-		<BaseAddedBy icon={ pluginIcon } imageUrl={ logoURL } text={ name } />
+		<BaseAddedBy icon={ globeIcon } imageUrl={ logoURL } text={ name } />
 	);
 }
 
