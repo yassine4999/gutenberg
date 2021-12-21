@@ -116,6 +116,9 @@ function Navigation( {
 			orientation = 'horizontal',
 			flexWrap = 'wrap',
 		} = {},
+		style: {
+			spacing: { blockGap },
+		},
 	} = attributes;
 
 	let areaMenu,
@@ -675,6 +678,7 @@ function Navigation( {
 										!! CustomPlaceholder
 									}
 									orientation={ orientation }
+									blockGap={ blockGap }
 								/>
 							) }
 						</ResponsiveWrapper>
