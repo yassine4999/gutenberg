@@ -30,6 +30,14 @@
 			"__experimentalDefaultControls": {
 				"blockGap": true
 			}
+		},
+		"__experimentalLayout": {
+			"allowSwitching": false,
+			"allowInheriting": false,
+			"default": {
+				"type": "flex",
+				"flexWrap": "nowrap"
+			}
 		}
 	},
 	"editorStyle": "wp-block-columns-editor",
