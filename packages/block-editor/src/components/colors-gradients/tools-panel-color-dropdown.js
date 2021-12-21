@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import {
@@ -37,15 +42,19 @@ export default function ToolsPanelColorDropdown( { settings, ...otherProps } ) {
 			resetAllFilter={ settings.resetAllFilter }
 			{ ...otherProps }
 			as={ Dropdown }
-			className="block-editor-tools-panel-color-dropdown"
-			position={ 'bottom left' }
+			className="block-editor-panel-color-gradient-settings__dropdown block-editor-tools-panel-color-dropdown"
+			contentClassName="block-editor-panel-color-gradient-settings__dropdown-content"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Item
 					onClick={ onToggle }
-					className={ isOpen ? 'is-open' : undefined }
+					className={ classnames(
+						'block-editor-panel-color-gradient-settings__item',
+						{ 'is-open': isOpen }
+					) }
 				>
 					<HStack justify="flex-start">
 						<ColorIndicator
+							className="block-editor-panel-color-gradient-settings__color-indicator"
 							colorValue={
 								settings.gradientValue ?? settings.colorValue
 							}
@@ -56,10 +65,11 @@ export default function ToolsPanelColorDropdown( { settings, ...otherProps } ) {
 			) }
 			renderContent={ () => (
 				<ColorGradientControl
-					{ ...controlSettings }
+					showTitle={ false }
 					__experimentalHasMultipleOrigins
 					__experimentalIsRenderedInSidebar
 					enableAlpha
+					{ ...controlSettings }
 				/>
 			) }
 		/>
