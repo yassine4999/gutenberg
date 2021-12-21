@@ -2,15 +2,13 @@
  * WordPress dependencies
  */
 import { useState, useEffect } from '@wordpress/element';
-import { __experimentalToolsPanelItem as ToolsPanelItem } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import ContrastChecker from '../components/contrast-checker';
-import ColorGradientControl from '../components/colors-gradients/control';
+import ToolsPanelColorDropdown from '../components/colors-gradients/tools-panel-color-dropdown';
 import InspectorControls from '../components/inspector-controls';
-import useMultipleOriginColorsAndGradients from '../components/colors-gradients/use-multiple-origin-colors-and-gradients';
 import { __unstableUseBlockRef as useBlockRef } from '../components/block-list/use-block-props/use-block-refs';
 
 function getComputedStyle( node ) {
@@ -25,7 +23,6 @@ export default function ColorPanel( {
 	const [ detectedBackgroundColor, setDetectedBackgroundColor ] = useState();
 	const [ detectedColor, setDetectedColor ] = useState();
 	const ref = useBlockRef( clientId );
-	const colorGradientSettings = useMultipleOriginColorsAndGradients();
 
 	useEffect( () => {
 		if ( ! enableContrastChecking ) {
@@ -57,29 +54,11 @@ export default function ColorPanel( {
 	return (
 		<InspectorControls __experimentalGroup="color">
 			{ settings.map( ( setting, index ) => (
-				<ToolsPanelItem
+				<ToolsPanelColorDropdown
 					key={ index }
-					hasValue={ setting.hasValue }
-					label={ setting.label }
-					onDeselect={ setting.onDeselect }
-					isShownByDefault={ setting.isShownByDefault }
-					resetAllFilter={ setting.resetAllFilter }
+					settings={ setting }
 					panelId={ clientId }
-				>
-					<ColorGradientControl
-						{ ...{
-							...colorGradientSettings,
-							clearable: false,
-							label: setting.label,
-							onColorChange: setting.onColorChange,
-							onGradientChange: setting.onGradientChange,
-							colorValue: setting.colorValue,
-							gradientValue: setting.gradientValue,
-						} }
-						__experimentalHasMultipleOrigins
-						__experimentalIsRenderedInSidebar
-					/>
-				</ToolsPanelItem>
+				/>
 			) ) }
 			{ enableContrastChecking && (
 				<ContrastChecker
