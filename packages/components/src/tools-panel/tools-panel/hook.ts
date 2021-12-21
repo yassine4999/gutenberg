@@ -74,8 +74,8 @@ export function useToolsPanel(
 		setPanelItems( ( items ) => {
 			const newItems = [ ...items ];
 			// If an item with this label is already registered, remove it first.
-			// This can happen when an item is moved between the default and optional
-			// groups.
+			// This can happen when an item is moved between the default and
+			// optional groups.
 			const existingIndex = newItems.findIndex(
 				( oldItem ) => oldItem.label === item.label
 			);
@@ -230,6 +230,27 @@ export function useToolsPanel(
 		setMenuItems( resetMenuItems );
 	};
 
+	// Assist ItemGroup styling when there are potentially hidden placeholder
+	// items by identifying first & last items that are toggled on for display.
+	const getFirstItem = () => {
+		const optionalItems = menuItems.optional || {};
+		const firstItem = panelItems.find(
+			( item ) => item.isShownByDefault || !! optionalItems[ item.label ]
+		);
+
+		return firstItem?.label;
+	};
+
+	const getLastItem = () => {
+		const reversedPanelItems = [ ...panelItems ].reverse();
+		const optionalItems = menuItems.optional || {};
+		const lastItem = reversedPanelItems.find(
+			( item ) => item.isShownByDefault || !! optionalItems[ item.label ]
+		);
+
+		return lastItem?.label;
+	};
+
 	const panelContext = {
 		panelId,
 		menuItems,
@@ -240,6 +261,8 @@ export function useToolsPanel(
 		hasMenuItems: !! panelItems.length,
 		isResetting: isResetting.current,
 		shouldRenderPlaceholderItems,
+		firstDisplayedItem: getFirstItem(),
+		lastDisplayedItem: getLastItem(),
 	};
 
 	return {
