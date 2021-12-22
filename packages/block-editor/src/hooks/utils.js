@@ -1,7 +1,16 @@
 /**
  * External dependencies
  */
-import { pickBy, isEmpty, isObject, identity, mapValues } from 'lodash';
+import {
+	pickBy,
+	isEmpty,
+	isObject,
+	identity,
+	mapValues,
+	forEach,
+	get,
+	set,
+} from 'lodash';
 
 /**
  * Removed falsy values from nested object.
@@ -19,3 +28,23 @@ export const cleanEmptyObject = ( object ) => {
 	);
 	return isEmpty( cleanedNestedObjects ) ? undefined : cleanedNestedObjects;
 };
+
+export function transformStyles(
+	activeSupports,
+	migrationPaths,
+	result,
+	source
+) {
+	const firstBlockAttributes = source[ 0 ]?.attributes;
+	forEach( activeSupports, ( isActive, support ) => {
+		if ( isActive ) {
+			migrationPaths[ support ].forEach( ( path ) => {
+				const styleValue = get( firstBlockAttributes, path );
+				if ( styleValue ) {
+					set( result.attributes, path, styleValue );
+				}
+			} );
+		}
+	} );
+	return result;
+}
