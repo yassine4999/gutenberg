@@ -10,14 +10,14 @@ const { dirname, join } = require( 'path' );
 /**
  * Internal dependencies
  */
-const initBlockJSON = require( './init-block-json' );
+const initBlocks = require( './init-blocks' );
 const initPackageJSON = require( './init-package-json' );
 const initWPScripts = require( './init-wp-scripts' );
 const initWPEnv = require( './init-wp-env' );
 const { code, info, success } = require( './log' );
 
 module.exports = async (
-	blockTemplate,
+	pluginTemplate,
 	{
 		$schema,
 		apiVersion,
@@ -45,9 +45,9 @@ module.exports = async (
 	namespace = namespace.toLowerCase();
 
 	info( '' );
-	info( `Creating a new WordPress block in "${ slug }" folder.` );
+	info( `Creating a new WordPress plugin in "${ slug }" folder.` );
 
-	const { outputTemplates, outputAssets } = blockTemplate;
+	const { blocks, outputTemplates, outputAssets } = pluginTemplate;
 	const view = {
 		$schema,
 		apiVersion,
@@ -73,6 +73,7 @@ module.exports = async (
 		editorStyle,
 		style,
 	};
+
 	await Promise.all(
 		Object.keys( outputTemplates ).map( async ( outputFile ) => {
 			// Output files can have names that depend on the slug provided.
@@ -96,7 +97,8 @@ module.exports = async (
 		} )
 	);
 
-	await initBlockJSON( view );
+	await initBlocks( blocks, view );
+
 	await initPackageJSON( view );
 
 	if ( wpScripts ) {

@@ -10,10 +10,11 @@ const { writeFile } = require( 'fs' ).promises;
  */
 const { info } = require( './log' );
 
-module.exports = async ( {
+async function initBlockJSON( {
 	$schema,
 	apiVersion,
 	slug,
+	folderName,
 	namespace,
 	title,
 	version,
@@ -26,8 +27,8 @@ module.exports = async ( {
 	editorScript,
 	editorStyle,
 	style,
-} ) => {
-	const outputFile = join( process.cwd(), slug, 'block.json' );
+} ) {
+	const outputFile = join( process.cwd(), slug, folderName, 'block.json' );
 	info( '' );
 	info( 'Creating a "block.json" file.' );
 	await writeFile(
@@ -54,6 +55,14 @@ module.exports = async ( {
 			),
 			null,
 			'\t'
+		)
+	);
+}
+
+module.exports = async function ( blocks, view ) {
+	await Promise.all(
+		blocks.map(
+			async ( block ) => await initBlockJSON( { ...view, ...block } )
 		)
 	);
 };
