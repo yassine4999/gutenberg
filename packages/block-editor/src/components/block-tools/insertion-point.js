@@ -32,7 +32,7 @@ function InsertionPointPopover( {
 	__unstablePopoverSlot,
 	__unstableContentRef,
 } ) {
-	const { selectBlock } = useDispatch( blockEditorStore );
+	const { selectBlock, hideInsertionPoint } = useDispatch( blockEditorStore );
 	const openRef = useContext( InsertionPointOpenRef );
 	const ref = useRef();
 	const {
@@ -195,6 +195,14 @@ function InsertionPointPopover( {
 		}
 	}
 
+	function maybeHideInserterPoint( event ) {
+		// Only hide the inserter if it's triggered on the wrapper,
+		// and the inserter is not open.
+		if ( event.target === ref.current && ! openRef.current ) {
+			hideInsertionPoint();
+		}
+	}
+
 	// Only show the in-between inserter between blocks, so when there's a
 	// previous and a next element.
 	const showInsertionPointInserter =
@@ -291,6 +299,9 @@ function InsertionPointPopover( {
 			// Render in the old slot if needed for backward compatibility,
 			// otherwise render in place (not in the the default popover slot).
 			__unstableSlotName={ __unstablePopoverSlot || null }
+			// Forces a remount of the popover when its position changes
+			// This makes sure the popover doesn't animate from its previous position.
+			key={ nextClientId + '--' + rootClientId }
 		>
 			<motion.div
 				layout={ ! disableMotion }
@@ -306,6 +317,7 @@ function InsertionPointPopover( {
 				className={ classnames( className, {
 					'is-with-inserter': showInsertionPointInserter,
 				} ) }
+				onHoverEnd={ maybeHideInserterPoint }
 				style={ style }
 			>
 				<motion.div

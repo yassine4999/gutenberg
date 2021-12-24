@@ -57,11 +57,7 @@ export default function PostExcerptEditor( {
 		return document.body.textContent || document.body.innerText || '';
 	}, [ renderedExcerpt ] );
 	if ( ! postType || ! postId ) {
-		return (
-			<div { ...blockProps }>
-				<Warning>{ __( 'Post Excerpt' ) }</Warning>
-			</div>
-		);
+		return <div { ...blockProps }>{ __( 'Post Excerpt' ) }</div>;
 	}
 	if ( isProtected && ! userCanEdit ) {
 		return (
@@ -100,6 +96,7 @@ export default function PostExcerptEditor( {
 				( isSelected ? '' : __( 'No post excerpt found' ) )
 			}
 			onChange={ setExcerpt }
+			tagName="p"
 		/>
 	) : (
 		( renderedExcerpt && (

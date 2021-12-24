@@ -22,7 +22,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { useExperimentalFeatures } from '../../experimental-features';
+import { useExperimentalFeatures } from './experimental-features';
 import menuItemsFixture from './fixtures/menu-items-request-fixture.json';
 
 const TYPE_NAMES = {
@@ -177,7 +177,7 @@ async function deleteAllLinkedResources() {
 	} );
 }
 
-describe( 'Navigation editor', () => {
+describe.skip( 'Navigation editor', () => {
 	useExperimentalFeatures( [ '#gutenberg-navigation' ] );
 
 	beforeAll( async () => {

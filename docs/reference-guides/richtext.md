@@ -26,9 +26,9 @@ There are a number of core blocks using the RichText component. The JavaScript e
 ## Example
 
 {% codetabs %}
-{% ESNext %}
+{% JSX %}
 
-```js
+```jsx
 import { registerBlockType } from '@wordpress/blocks';
 import { useBlockProps, RichText } from '@wordpress/block-editor';
 
@@ -66,7 +66,7 @@ registerBlockType( /* ... */, {
 } );
 ```
 
-{% ES5 %}
+{% Plain %}
 
 ```js
 wp.blocks.registerBlockType( /* ... */, {
@@ -112,7 +112,7 @@ While using the RichText component a number of common issues tend to appear.
 
 ### HTML Formatting Tags Display in the Content
 
-If the HTML tags from text formatting such as `<strong>` or `<em>` are being escaped and displayed on the frontend of the site, this is likely due to an issue in your save function. Make sure your code looks something like `<RichText.Content tagName="h2" value={ heading } />` (ESNext) within your save function instead of simply outputting the value with `<h2>{ heading }</h2>`.
+If the HTML tags from text formatting such as `<strong>` or `<em>` are being escaped and displayed on the frontend of the site, this is likely due to an issue in your save function. Make sure your code looks something like `<RichText.Content tagName="h2" value={ heading } />` (JSX) within your save function instead of simply outputting the value with `<h2>{ heading }</h2>`.
 
 ### Unwanted Formatting Options Still Display
 
@@ -130,4 +130,4 @@ The RichText component uses formats to display inline elements, for example imag
 wp.richText.unregisterFormatType( 'core/image' );
 ```
 
-To apply, you would need to enqueue the above script in your plugin or theme. See the JavaScript tutorial for [how to load JavaScript in WordPress](https://developer.wordpress.org/block-editor/tutorials/javascript/loading-javascript/).
+To apply, you would need to enqueue the above script in your plugin or theme. See the JavaScript tutorial for [how to load JavaScript in WordPress](https://developer.wordpress.org/block-editor/how-to-guides/javascript/loading-javascript/).

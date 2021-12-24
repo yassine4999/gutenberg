@@ -6,7 +6,7 @@ import {
 	Button,
 	__experimentalHeading as Heading,
 } from '@wordpress/components';
-import { getTemplatePartIcon } from '@wordpress/editor';
+import { store as editorStore } from '@wordpress/editor';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
@@ -14,19 +14,31 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { store as editSiteStore } from '../../../store';
-import { TEMPLATE_PART_AREA_TO_NAME } from '../../../store/constants';
 
 function TemplateAreaItem( { area, clientId } ) {
 	const { selectBlock, toggleBlockHighlight } = useDispatch(
 		blockEditorStore
 	);
+	const templatePartArea = useSelect(
+		( select ) => {
+			const defaultAreas = select(
+				editorStore
+			).__experimentalGetDefaultTemplatePartAreas();
+
+			return defaultAreas.find(
+				( defaultArea ) => defaultArea.area === area
+			);
+		},
+		[ area ]
+	);
+
 	const highlightBlock = () => toggleBlockHighlight( clientId, true );
 	const cancelHighlightBlock = () => toggleBlockHighlight( clientId, false );
 
 	return (
 		<Button
 			className="edit-site-template-card__template-areas-item"
-			icon={ getTemplatePartIcon( area ) }
+			icon={ templatePartArea?.icon }
 			onMouseOver={ highlightBlock }
 			onMouseLeave={ cancelHighlightBlock }
 			onFocus={ highlightBlock }
@@ -35,18 +47,18 @@ function TemplateAreaItem( { area, clientId } ) {
 				selectBlock( clientId );
 			} }
 		>
-			{ TEMPLATE_PART_AREA_TO_NAME[ area ] }
+			{ templatePartArea?.label }
 		</Button>
 	);
 }
 
 export default function TemplateAreas() {
-	const templateAreaBlocks = useSelect(
-		( select ) => select( editSiteStore ).getTemplateAreaBlocks(),
+	const templateParts = useSelect(
+		( select ) => select( editSiteStore ).getCurrentTemplateTemplateParts(),
 		[]
 	);
 
-	if ( ! Object.keys( templateAreaBlocks ).length ) {
+	if ( ! templateParts.length ) {
 		return null;
 	}
 
@@ -60,16 +72,14 @@ export default function TemplateAreas() {
 			</Heading>
 
 			<ul className="edit-site-template-card__template-areas-list">
-				{ Object.entries( templateAreaBlocks ).map(
-					( [ area, templateAreaBlock ] ) => (
-						<li key={ area }>
-							<TemplateAreaItem
-								area={ area }
-								clientId={ templateAreaBlock.clientId }
-							/>
-						</li>
-					)
-				) }
+				{ templateParts.map( ( { templatePart, block } ) => (
+					<li key={ templatePart.slug }>
+						<TemplateAreaItem
+							area={ templatePart.area }
+							clientId={ block.clientId }
+						/>
+					</li>
+				) ) }
 			</ul>
 		</section>
 	);

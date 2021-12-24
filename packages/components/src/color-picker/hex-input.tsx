@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import colorize, { ColorFormats } from 'tinycolor2';
+import { colord, Colord } from 'colord';
 
 /**
  * WordPress dependencies
@@ -15,24 +15,20 @@ import { Text } from '../text';
 import { Spacer } from '../spacer';
 import { space } from '../ui/utils/space';
 import { ColorHexInputControl } from './styles';
+import { COLORS } from '../utils/colors-values';
 
 interface HexInputProps {
-	color: ColorFormats.HSLA;
-	onChange: ( value: ColorFormats.HSLA ) => void;
+	color: Colord;
+	onChange: ( nextColor: Colord ) => void;
 	enableAlpha: boolean;
 }
 
 export const HexInput = ( { color, onChange, enableAlpha }: HexInputProps ) => {
 	const handleValidate = ( value: string ) => {
-		if ( ! colorize( value ).isValid() ) {
+		if ( ! colord( '#' + value ).isValid() ) {
 			throw new Error( 'Invalid hex color input' );
 		}
 	};
-
-	const colorized = colorize( color );
-	const value = enableAlpha
-		? colorized.toHex8String()
-		: colorized.toHexString();
 
 	return (
 		<ColorHexInputControl
@@ -40,16 +36,16 @@ export const HexInput = ( { color, onChange, enableAlpha }: HexInputProps ) => {
 				<Spacer
 					as={ Text }
 					marginLeft={ space( 3.5 ) }
-					color="blue"
+					color={ COLORS.ui.theme }
 					lineHeight={ 1 }
 				>
 					#
 				</Spacer>
 			}
-			value={ value.slice( 1 ).toUpperCase() }
-			onChange={ ( nextValue ) =>
-				onChange( colorize( nextValue ).toHsl() )
-			}
+			value={ color.toHex().slice( 1 ).toUpperCase() }
+			onChange={ ( nextValue ) => {
+				onChange( colord( '#' + nextValue ) );
+			} }
 			onValidate={ handleValidate }
 			maxLength={ enableAlpha ? 8 : 6 }
 			label={ __( 'Hex color' ) }

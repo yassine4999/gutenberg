@@ -17,6 +17,8 @@ import { removeFormat } from '@wordpress/rich-text';
  */
 import { default as InlineColorUI, getActiveColors } from './inline';
 
+export const transparentValue = 'rgba(0, 0, 0, 0)';
+
 const name = 'core/text-color';
 const title = __( 'Highlight' );
 
@@ -30,7 +32,7 @@ function getComputedStyleProperty( element, property ) {
 
 	if (
 		property === 'background-color' &&
-		value === 'rgba(0, 0, 0, 0)' &&
+		value === transparentValue &&
 		element.parentElement
 	) {
 		return getComputedStyleProperty( element.parentElement, property );
@@ -47,7 +49,7 @@ function fillComputedColors( element, { color, backgroundColor } ) {
 	return {
 		color: color || getComputedStyleProperty( element, 'color' ),
 		backgroundColor:
-			backgroundColor === 'rgba(0, 0, 0, 0)'
+			backgroundColor === transparentValue
 				? getComputedStyleProperty( element, 'background-color' )
 				: backgroundColor,
 	};
@@ -101,6 +103,7 @@ function TextColorEdit( {
 						? enableIsAddingColor
 						: () => onChange( removeFormat( value, name ) )
 				}
+				role="menuitemcheckbox"
 			/>
 			{ isAddingColor && (
 				<InlineColorUI
@@ -124,6 +127,24 @@ export const textColor = {
 	attributes: {
 		style: 'style',
 		class: 'class',
+	},
+	/*
+	 * Since this format relies on the <mark> tag, it's important to
+	 * prevent the default yellow background color applied by most
+	 * browsers. The solution is to detect when this format is used with a
+	 * text color but no background color, and in such cases to override
+	 * the default styling with a transparent background.
+	 *
+	 * @see https://github.com/WordPress/gutenberg/pull/35516
+	 */
+	__unstableFilterAttributeValue( key, value ) {
+		if ( key !== 'style' ) return value;
+		// We should not add a background-color if it's already set
+		if ( value && value.includes( 'background-color' ) ) return value;
+		const addedCSS = [ 'background-color', transparentValue ].join( ':' );
+		// Prepend `addedCSS` to avoid a double `;;` as any the existing CSS
+		// rules will already include a `;`.
+		return value ? [ addedCSS, value ].join( ';' ) : addedCSS;
 	},
 	edit: TextColorEdit,
 };

@@ -131,7 +131,11 @@ function computeAnchorRect(
 	}
 
 	const { parentNode } = anchorRefFallback.current;
-	const rect = parentNode.getBoundingClientRect();
+	const rect = offsetIframe(
+		parentNode.getBoundingClientRect(),
+		parentNode.ownerDocument,
+		container
+	);
 
 	if ( shouldAnchorIncludePadding ) {
 		return rect;
@@ -456,11 +460,11 @@ const Popover = (
 			defaultView.cancelAnimationFrame( rafId );
 
 			if ( anchorDocument && anchorDocument !== ownerDocument ) {
-				anchorDocument.defaultView.removeEventListener(
+				anchorDocument.defaultView?.removeEventListener(
 					'resize',
 					refresh
 				);
-				anchorDocument.defaultView.removeEventListener(
+				anchorDocument.defaultView?.removeEventListener(
 					'scroll',
 					refresh,
 					true

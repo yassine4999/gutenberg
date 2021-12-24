@@ -17,8 +17,10 @@
 		border-radius: inherit;
 	}
 
-	.aligncenter {
-		display: table;
+	&.aligncenter {
+		margin-left: auto;
+		margin-right: auto;
+		text-align: center;
 	}
 
 	// Style variations

@@ -788,6 +788,28 @@ describe( 'state', () => {
 			} );
 		} );
 
+		it( 'Replacing the block with an empty list should remove it', () => {
+			const original = blocks( undefined, {
+				type: 'RESET_BLOCKS',
+				blocks: [
+					{
+						clientId: 'chicken',
+						name: 'core/test-block',
+						attributes: {},
+						innerBlocks: [],
+					},
+				],
+			} );
+			const state = blocks( original, {
+				type: 'REPLACE_BLOCKS',
+				clientIds: [ 'chicken' ],
+				blocks: [],
+			} );
+
+			expect( Object.keys( state.byClientId ) ).toHaveLength( 0 );
+			expect( state.tree[ '' ].innerBlocks ).toHaveLength( 0 );
+		} );
+
 		it( 'should replace the block and remove references to its inner blocks', () => {
 			const original = blocks( undefined, {
 				type: 'RESET_BLOCKS',
@@ -2026,6 +2048,41 @@ describe( 'state', () => {
 					} );
 
 					expect( state.isIgnoredChange ).toBe( true );
+				} );
+			} );
+
+			describe( 'controlledInnerBlocks', () => {
+				it( 'should remove the content of the block if it switches from controlled to uncontrolled or opposite', () => {
+					const original = blocks( undefined, {
+						type: 'RESET_BLOCKS',
+						blocks: [
+							{
+								clientId: 'chicken',
+								name: 'core/test-block',
+								attributes: {},
+								innerBlocks: [
+									{
+										clientId: 'child',
+										name: 'core/test-block',
+										attributes: {},
+										innerBlocks: [],
+									},
+								],
+							},
+						],
+					} );
+
+					const state = blocks( original, {
+						type: 'SET_HAS_CONTROLLED_INNER_BLOCKS',
+						clientId: 'chicken',
+						hasControlledInnerBlocks: true,
+					} );
+
+					expect( state.controlledInnerBlocks.chicken ).toBe( true );
+					// The previous content of the block should be removed
+					expect( state.byClientId.child ).toBeUndefined();
+					expect( state.tree.child ).toBeUndefined();
+					expect( state.tree.chicken.innerBlocks ).toEqual( [] );
 				} );
 			} );
 		} );

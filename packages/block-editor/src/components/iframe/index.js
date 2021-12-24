@@ -76,7 +76,7 @@ function styleSheetsCompat( doc ) {
 
 		if ( isMatch && ! doc.getElementById( ownerNode.id ) ) {
 			// eslint-disable-next-line no-console
-			console.error(
+			console.warn(
 				`Stylesheet ${ ownerNode.id } was not properly added.
 For blocks, use the block API's style (https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#style) or editorStyle (https://developer.wordpress.org/block-editor/reference-guides/block-api/block-metadata/#editor-style).
 For themes, use add_editor_style (https://developer.wordpress.org/block-editor/how-to-guides/themes/theme-support/#editor-styles).`,
@@ -164,12 +164,15 @@ async function loadScript( head, { id, src } ) {
 	} );
 }
 
-function Iframe( { contentRef, children, head, tabIndex = 0, ...props }, ref ) {
+function Iframe(
+	{ contentRef, children, head, tabIndex = 0, assets, ...props },
+	ref
+) {
 	const [ , forceRender ] = useReducer( () => ( {} ) );
 	const [ iframeDocument, setIframeDocument ] = useState();
 	const [ bodyClasses, setBodyClasses ] = useState( [] );
-	const styles = useParsedAssets( window.__editorAssets?.styles );
-	const scripts = useParsedAssets( window.__editorAssets?.scripts );
+	const styles = useParsedAssets( assets?.styles );
+	const scripts = useParsedAssets( assets?.scripts );
 	const clearerRef = useBlockSelectionClearer();
 	const [ before, writingFlowRef, after ] = useWritingFlow();
 	const setRef = useRefEffect( ( node ) => {

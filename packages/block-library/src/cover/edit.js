@@ -38,7 +38,7 @@ import {
 	ColorPalette,
 	useBlockProps,
 	useSetting,
-	__experimentalUseInnerBlocksProps as useInnerBlocksProps,
+	useInnerBlocksProps,
 	__experimentalUseGradient,
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
 	__experimentalUnitControl as UnitControl,
@@ -310,6 +310,7 @@ function CoverEdit( {
 	setAttributes,
 	setOverlayColor,
 	toggleSelection,
+	markNextChangeAsNotPersistent,
 } ) {
 	const {
 		contentPosition,
@@ -325,13 +326,15 @@ function CoverEdit( {
 		style: styleAttribute,
 		url,
 		alt,
+		allowedBlocks,
+		templateLock,
 	} = attributes;
 	const {
 		gradientClass,
 		gradientValue,
 		setGradient,
 	} = __experimentalUseGradient();
-	const onSelectMedia = attributesFromMedia( setAttributes );
+	const onSelectMedia = attributesFromMedia( setAttributes, dimRatio );
 	const isUploadingMedia = isTemporaryMedia( id, url );
 
 	const [ prevMinHeightValue, setPrevMinHeightValue ] = useState( minHeight );
@@ -389,6 +392,8 @@ function CoverEdit( {
 	);
 
 	useEffect( () => {
+		// This side-effect should not create an undo level.
+		markNextChangeAsNotPersistent();
 		setAttributes( { isDark: isCoverDark } );
 	}, [ isCoverDark ] );
 
@@ -541,6 +546,8 @@ function CoverEdit( {
 					</PanelBody>
 				) }
 				<PanelColorGradientSettings
+					__experimentalHasMultipleOrigins
+					__experimentalIsRenderedInSidebar
 					title={ __( 'Overlay' ) }
 					initialOpen={ true }
 					settings={ [
@@ -618,6 +625,8 @@ function CoverEdit( {
 		{
 			template: innerBlocksTemplate,
 			templateInsertUpdatesSelection: true,
+			allowedBlocks,
+			templateLock,
 		}
 	);
 
@@ -697,6 +706,7 @@ function CoverEdit( {
 				<BoxControlVisualizer
 					values={ styleAttribute?.spacing?.padding }
 					showValues={ styleAttribute?.visualizers?.padding }
+					className="block-library-cover__padding-visualizer"
 				/>
 				<ResizableCover
 					className="block-library-cover__resize-container"
@@ -764,10 +774,14 @@ function CoverEdit( {
 
 export default compose( [
 	withDispatch( ( dispatch ) => {
-		const { toggleSelection } = dispatch( blockEditorStore );
+		const {
+			toggleSelection,
+			__unstableMarkNextChangeAsNotPersistent,
+		} = dispatch( blockEditorStore );
 
 		return {
 			toggleSelection,
+			markNextChangeAsNotPersistent: __unstableMarkNextChangeAsNotPersistent,
 		};
 	} ),
 	withColors( { overlayColor: 'background-color' } ),
