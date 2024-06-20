@@ -73,7 +73,7 @@
 		"postcss": "^8.2.15",
 		"postcss-loader": "^6.1.1",
 		"prettier": "npm:wp-prettier@2.2.1-beta-1",
-		"puppeteer-core": "^11.0.0",
+		"puppeteer-core": "^22.11.2",
 		"react-refresh": "^0.10.0",
 		"read-pkg-up": "^7.0.1",
 		"resolve-bin": "^0.4.0",
